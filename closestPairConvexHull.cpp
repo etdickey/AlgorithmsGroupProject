@@ -113,9 +113,7 @@ vector<point> divideAndConquerConvexHull(vector<point> points){
 int main(int argc, char** argv){
     cout << "Hello amazin world" << endl;
     //define variables
-    // SDL_Plotter g(ROW_MAX,COL_MAX);
-    SDL_Plotter g(1000,1000);
-    cout << "HEre" << endl;
+    SDL_Plotter g(ROW_MAX,COL_MAX);
 
     vector<point> points;
     ifstream in("input1.in");
@@ -125,7 +123,7 @@ int main(int argc, char** argv){
     while(in >> x >> y){
         points.push_back(point(x, y));
     }
-    cout << "HEre" << endl;
+
     //run brute force with animation and time for fun
     if(argc == 3){
         string algo(argv[1]);
@@ -164,7 +162,7 @@ int main(int argc, char** argv){
         bool colored = false;
         int x,y, xd, yd;
         int R,G,B;
-        cout << "Hi mom" << endl;
+        
         while (!g.getQuit())
         {
     		if(!stopped){

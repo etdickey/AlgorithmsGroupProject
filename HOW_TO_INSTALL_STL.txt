@@ -12,3 +12,6 @@ From the flash drive, copy the contents of the bin folder and skip everything th
 Do the same with the lib folder
 
 g++ -o a.exe driver.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer
+
+UPDATED::
+g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide

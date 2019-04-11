@@ -9,25 +9,25 @@
 
 //Threaded Function
 
-static int Sound(void *data){
-	param *p = (param*)data;
-	p->running = true;
-	Mix_Chunk *gScratch = NULL;
-	gScratch = Mix_LoadWAV( p->name.c_str() );
-
-
-	while(p->running){
-		SDL_mutexP( p->mut );
-		  SDL_CondWait(p->cond, p->mut);
-		  Mix_PlayChannel( -1, gScratch, 0 );
-		  p->play = false;
-		SDL_mutexV(p->mut);
-	}
-
-	Mix_FreeChunk( gScratch );
-	p->running = false;
-	return 0;
-}
+// static int Sound(void *data){
+// 	param *p = (param*)data;
+// 	p->running = true;
+// 	Mix_Chunk *gScratch = NULL;
+// 	gScratch = Mix_LoadWAV( p->name.c_str() );
+//
+//
+// 	while(p->running){
+// 		SDL_mutexP( p->mut );
+// 		  SDL_CondWait(p->cond, p->mut);
+// 		  Mix_PlayChannel( -1, gScratch, 0 );
+// 		  p->play = false;
+// 		SDL_mutexV(p->mut);
+// 	}
+//
+// 	Mix_FreeChunk( gScratch );
+// 	p->running = false;
+// 	return 0;
+// }
 
 // SDL Plotter Function Deffinitions
 
@@ -173,33 +173,33 @@ int SDL_Plotter::getCol(){
     return col;
 }
 
-void SDL_Plotter::initSound(string sound){
-	//int  *threadReturnValue;
-
-	if(!soundMap[sound].running){
-			param* p = &soundMap[sound];
-			p->name = sound;
-			p->cond = SDL_CreateCond();
-			p->mut = SDL_CreateMutex();
-
-			p->threadID = SDL_CreateThread( Sound, sound.c_str(), (void*)p );
-	}
-}
+// void SDL_Plotter::initSound(string sound){
+// 	//int  *threadReturnValue;
+//
+// 	if(!soundMap[sound].running){
+// 			param* p = &soundMap[sound];
+// 			p->name = sound;
+// 			p->cond = SDL_CreateCond();
+// 			p->mut = SDL_CreateMutex();
+//
+// 			p->threadID = SDL_CreateThread( Sound, sound.c_str(), (void*)p );
+// 	}
+// }
 
 void SDL_Plotter::setQuit(bool flag){
 	this->quit = flag;
 }
 
-void SDL_Plotter::playSound(string sound){
-	if(soundMap[sound].running){
-		SDL_CondSignal(soundMap[sound].cond);
-	}
-}
+// void SDL_Plotter::playSound(string sound){
+// 	if(soundMap[sound].running){
+// 		SDL_CondSignal(soundMap[sound].cond);
+// 	}
+// }
 
-void SDL_Plotter::quitSound(string sound){
-	soundMap[sound].running = false;
-	SDL_CondSignal(soundMap[sound].cond);
-}
+// void SDL_Plotter::quitSound(string sound){
+// 	soundMap[sound].running = false;
+// 	SDL_CondSignal(soundMap[sound].cond);
+// }
 
 void SDL_Plotter::Sleep(int ms){
 	SDL_Delay(ms);

@@ -38,7 +38,7 @@ const int MAX_THREAD = 100;
 #define MUS_PATH "scratch.wav"
 
 //sample threaded sound function
-static int Sound(void *data);
+// static int Sound(void *data);
 
 struct param{
 	bool play;
@@ -73,7 +73,7 @@ private:
     //Sound Stuff
     bool SOUND;
     int soundCount;
-    map<string, param> soundMap;
+    // map<string, param> soundMap;
 
 public:
 
