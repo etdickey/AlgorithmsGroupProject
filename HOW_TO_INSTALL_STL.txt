@@ -1,0 +1,14 @@
+http://lazyfoo.net/tutorials/SDL/01_hello_SDL/windows/mingw/index.php
+download mingw sdl2 (http://libsdl.org/download-2.0.php)
+
+From the i686-w64-mingw32 folder to C:/MinGW:
+	- from the bin folder, copy SDL2.dll to C:/MinGW/bin
+	- from the includes folder, copy the folder SDL2 to the folder MinGW/include
+	- from the lib folder, copy the contents into the folder MinGW/lib
+
+
+for the mixers: (also in the sdl header, comment out all the sound stuff everywhere)
+From the flash drive, copy the contents of the bin folder and skip everything that is already there.
+Do the same with the lib folder
+
+g++ -o a.exe driver.cpp -lmingw32 -lSDL2main -lSDL2
