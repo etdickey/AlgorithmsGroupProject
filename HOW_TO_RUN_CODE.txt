@@ -1,0 +1,10 @@
+The program requires 2 arguments (one from each category and in that order on the command line):
+
+There are these options:: [-convex -closest] and [-divide -brute]
+    - Convex = Convex Hull
+    - Closest = Closest Pair
+    - Divide = Divide and Conquer
+    - Brute = Brute Force
+
+Ex:
+g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide
