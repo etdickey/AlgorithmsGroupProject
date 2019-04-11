@@ -11,4 +11,4 @@ for the mixers: (also in the sdl header, comment out all the sound stuff everywh
 From the flash drive, copy the contents of the bin folder and skip everything that is already there.
 Do the same with the lib folder
 
-g++ -o a.exe driver.cpp -lmingw32 -lSDL2main -lSDL2
+g++ -o a.exe driver.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer

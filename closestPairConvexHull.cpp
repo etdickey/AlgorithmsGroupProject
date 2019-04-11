@@ -113,7 +113,10 @@ vector<point> divideAndConquerConvexHull(vector<point> points){
 int main(int argc, char** argv){
     cout << "Hello amazin world" << endl;
     //define variables
-    SDL_Plotter g(ROW_MAX,COL_MAX);
+    // SDL_Plotter g(ROW_MAX,COL_MAX);
+    SDL_Plotter g(1000,1000);
+    cout << "HEre" << endl;
+
     vector<point> points;
     ifstream in("input1.in");
     int x, y;
@@ -122,7 +125,7 @@ int main(int argc, char** argv){
     while(in >> x >> y){
         points.push_back(point(x, y));
     }
-
+    cout << "HEre" << endl;
     //run brute force with animation and time for fun
     if(argc == 3){
         string algo(argv[1]);
@@ -135,6 +138,7 @@ int main(int argc, char** argv){
                 divideAndConquerConvexHull(points);
             } else {
                 cout << "Invalid first argument: [-brute -divide] expected" << endl;
+                return 1;
             }
         } else if(algo == "-closest"){
             if(option == "-brute"){
@@ -149,13 +153,55 @@ int main(int argc, char** argv){
 
             } else {
                 cout << "Invalid first argument: [-brute -divide] expected" << endl;
+                return 1;
             }
         } else {
             cout << "Invalid first argument: [-convex, -closest] expected" << endl;
+            return 1;
+        }
+
+        bool stopped = false;
+        bool colored = false;
+        int x,y, xd, yd;
+        int R,G,B;
+        cout << "Hi mom" << endl;
+        while (!g.getQuit())
+        {
+    		if(!stopped){
+        			x = rand()%g.getCol();
+    			y = rand()%g.getRow();
+    			R = rand()%256;
+    			G = rand()%256;
+    			B = rand()%256;
+    			for(xd = 0; xd < 10 && x + xd < g.getCol(); xd++ ){
+    				for(yd = 0; yd < 10 && y + yd < g.getRow(); yd++ ){
+    					if(colored){
+    						g.plotPixel( x + xd, y + yd, R, G, B);
+    					}
+    					else{
+    					    g.plotPixel( x + xd, y + yd, 0, G, 0);
+    					}
+
+    				}
+    			}
+    		}
+
+    		if(g.kbhit()){
+    			g.getKey();
+    		}
+
+    		if(g.getMouseClick(x,y)){
+    			stopped = !stopped;
+    		}
+
+    		g.update();
         }
     } else {
         cout << "ERROR: Number of arguments must be 2: [-convex, -closest] [-brute -divide]" << endl;
+        return 1;
     }
+
+
 
     return 0;
 }
