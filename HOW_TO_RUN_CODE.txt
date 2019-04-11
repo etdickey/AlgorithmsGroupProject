@@ -6,5 +6,5 @@ There are these options:: [-convex -closest] and [-divide -brute]
     - Divide = Divide and Conquer
     - Brute = Brute Force
 
-Ex:
+Ex (command line of course):
 g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide
