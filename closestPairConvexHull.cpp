@@ -22,7 +22,11 @@ const int COL_MAX = 1000;
  */
 pair<point, point> brute_forceClosestPair(vector<point> points){
     pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-
+    cout << "Runing brute force closest pair" << endl;
+    for(point p : points){
+        p.display(cout);
+        cout << endl;
+    }
     return closestPair;
 }
 
@@ -46,7 +50,11 @@ pair<point, point> brute_forceClosestPair(vector<point> points){
  */
 pair<point, point> divideAndConquerClosestPair(vector<point> points){
     pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-
+    cout << "Runing divide and conquer closest pair" << endl;
+    for(point p : points){
+        p.display(cout);
+        cout << endl;
+    }
     return closestPair;
 }
 
@@ -70,7 +78,11 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
  */
 vector<point> brute_forceConvexHull(vector<point> points){
     vector<point> convexHull;
-
+    cout << "Runing brute force convex hull" << endl;
+    for(point p : points){
+        p.display(cout);
+        cout << endl;
+    }
     return convexHull;
 }
 
@@ -94,7 +106,11 @@ vector<point> brute_forceConvexHull(vector<point> points){
  */
 vector<point> divideAndConquerConvexHull(vector<point> points){
     vector<point> convexHull;
-
+    cout << "Runing divide and conquer convex hull" << endl;
+    for(point p : points){
+        p.display(cout);
+        cout << endl;
+    }
     return convexHull;
 }
 
@@ -128,45 +144,26 @@ int main(int argc, char** argv){
     if(argc == 3){
         string algo(argv[1]);
         string option(argv[2]);
-        if(algo == "-convex"){
-            if(option == "-brute"){
-                //call brute force convex hull, it does all the work
-                brute_forceConvexHull(points);
-            } else if(option == "-divide"){
-                divideAndConquerConvexHull(points);
-            } else {
-                cout << "Invalid first argument: [-brute -divide] expected" << endl;
-                return 1;
-            }
-        } else if(algo == "-closest"){
-            if(option == "-brute"){
-                pair<point, point> closestPair = brute_forceClosestPair(points);
 
-                //TODO:: circle them on the plot
-
-            } else if(option == "-divide"){
-                pair<point, point> closestPair = divideAndConquerClosestPair(points);
-
-                //TODO:: circle them on the plot
-
-            } else {
-                cout << "Invalid first argument: [-brute -divide] expected" << endl;
-                return 1;
-            }
-        } else {
+        if(algo != "-convex" && algo != "-closest"){
             cout << "Invalid first argument: [-convex, -closest] expected" << endl;
             return 1;
         }
+        if(option != "-divide" && option != "-brute"){
+            cout << "Invalid first argument: [-brute -divide] expected" << endl;
+            return 1;
+        }
 
-        bool stopped = false;
+        bool rerunAlgorithm = true;
         bool colored = false;
         int x,y, xd, yd;
         int R,G,B;
-        
+
         while (!g.getQuit())
         {
-    		if(!stopped){
-        			x = rand()%g.getCol();
+    		if(rerunAlgorithm){
+                //todo: run the selected algorithm and animate it
+        		x = rand()%g.getCol();
     			y = rand()%g.getRow();
     			R = rand()%256;
     			G = rand()%256;
@@ -182,6 +179,29 @@ int main(int argc, char** argv){
 
     				}
     			}
+
+                if(algo == "-convex"){
+                    if(option == "-brute"){
+                        //call brute force convex hull, it does all the work
+                        brute_forceConvexHull(points);
+                    } else if(option == "-divide"){
+                        divideAndConquerConvexHull(points);
+                    }
+                } else if(algo == "-closest"){
+                    if(option == "-brute"){
+                        pair<point, point> closestPair = brute_forceClosestPair(points);
+
+                        //TODO:: circle them on the plot
+
+                    } else if(option == "-divide"){
+                        pair<point, point> closestPair = divideAndConquerClosestPair(points);
+
+                        //TODO:: circle them on the plot
+
+                    }
+                }
+
+                rerunAlgorithm = false;
     		}
 
     		if(g.kbhit()){
@@ -189,7 +209,10 @@ int main(int argc, char** argv){
     		}
 
     		if(g.getMouseClick(x,y)){
-    			stopped = !stopped;
+                //TODO:: get the point clicked, make a new point with it,
+                // add it to the list of points and then rerun the selected algorithm
+                points.push_back(point(x, y));
+    			rerunAlgorithm = true;
     		}
 
     		g.update();
