@@ -25,7 +25,9 @@ pair<point, point> brute_force(vector<point> points){
 
 /**
  * Solves the CLosest Pair problem with the brute force solution (and animates it)
- * @param points [description]
+ * 
+ * @param points the points to solve the problem
+ * @return the closest pair of points
  */
 // pair<point, point> brute_force(vector<point> points, SDL_Plotter& g){
 //     pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
