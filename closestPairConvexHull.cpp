@@ -209,7 +209,7 @@ int main(int argc, char** argv){
     		}
 
     		if(g.getMouseClick(x,y)){
-                //TODO:: get the point clicked, make a new point with it,
+                //get the point clicked, make a new point with it,
                 // add it to the list of points and then rerun the selected algorithm
                 points.push_back(point(x, y));
     			rerunAlgorithm = true;
