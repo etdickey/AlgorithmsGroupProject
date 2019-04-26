@@ -129,3 +129,18 @@ void point::display(ostream& out){
 void point::draw(SDL_Plotter& g){
     g.plotPixel(x, g.getRow()-y, color.getR(), color.getG(), color.getB());
 }
+
+/**
+ * description: draws a thick point in the passed in SDL_Plotter class
+ * return: void
+ * precondition: the point class is initialized
+ * postcondition: the thick point has been drawn on the screen usin the SDL_Plotter
+ *  class
+ */
+void point::drawThick(SDL_Plotter& g, int thickness){
+    for(int dx = 0; dx < thickness && x + dx < g.getCol(); dx++ ){
+        for(int dy = 0; dy < thickness && y + dy < g.getRow(); dy++ ){
+            g.plotPixel( x + dx, g.getRow() - (y + dy), color.getR(), color.getG(), color.getB());
+        }
+    }
+}

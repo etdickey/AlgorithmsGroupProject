@@ -11,8 +11,31 @@
 using namespace std;
 
 #define endl '\n'
-const int ROW_MAX = 500;
+const int ROW_MAX = 1000;
 const int COL_MAX = 1000;
+
+/**
+ * Draws the points passed in onto the screen
+ *
+ * @param points the points to be drawn
+ * @param g      the plotter to plot onto
+ */
+void drawPoints(vector<point> points, SDL_Plotter& g){
+    for(point p : points){
+        p.draw(g);
+    }
+}
+/**
+ * Draws the points passed in onto the screen thicker than normal, to promote visibility
+ *
+ * @param points the points to be drawn
+ * @param g      the plotter to plot onto
+ */
+void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
+    for(point p : points){
+        p.drawThick(g, thickness);
+    }
+}
 
 /**
  * Solves the CLosest Pair problem with the brute force solution
@@ -105,20 +128,24 @@ vector<point> brute_forceConvexHull(vector<point> points){
 // }
 
 /**
- * Solves the Convex Hull problem with the divide and conquer solution
+ * Solves the Convex Hull problem with the divide and conquer solution (with animation if selected)
  *
  * @author Ethan Dickey
  *
  * @param  points the set of points to solve the problem for.
  * @return        the convex hull surrounding all the points
  */
-vector<point> divideAndConquerConvexHull(vector<point> points){
+vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, bool runAnimation = true){
     vector<point> convexHull;
     cout << "Runing divide and conquer convex hull" << endl;
-    for(point p : points){
-        p.display(cout);
-        cout << endl;
-    }
+    // for(point p : points){
+    //     p.display(cout);
+    //     cout << endl;
+    // }
+
+    cout << "Drawing points" << endl;
+    drawThickerPoints(points, g);
+
     return convexHull;
 }
 
@@ -146,6 +173,10 @@ int main(int argc, char** argv){
     //import data (multiple data sets?)
     while(in >> x >> y){
         points.push_back(point(x, y));
+        //TODO::     //sic em green
+            // R = 29;
+            // G = 60;
+            // B = 52;
     }
 
     //run brute force with animation and time for fun
@@ -171,29 +202,29 @@ int main(int argc, char** argv){
         {
     		if(rerunAlgorithm){
                 //todo: run the selected algorithm and animate it
-        		x = rand()%g.getCol();
-    			y = rand()%g.getRow();
-    			R = rand()%256;
-    			G = rand()%256;
-    			B = rand()%256;
-    			for(xd = 0; xd < 10 && x + xd < g.getCol(); xd++ ){
-    				for(yd = 0; yd < 10 && y + yd < g.getRow(); yd++ ){
-    					if(colored){
-    						g.plotPixel( x + xd, y + yd, R, G, B);
-    					}
-    					else{
-    					    g.plotPixel( x + xd, y + yd, 0, G, 0);
-    					}
-
-    				}
-    			}
+        		// x = rand()%g.getCol();
+    			// y = rand()%g.getRow();
+    			// R = rand()%256;
+    			// G = rand()%256;
+    			// B = rand()%256;
+    			// for(xd = 0; xd < 10 && x + xd < g.getCol(); xd++ ){
+    			// 	for(yd = 0; yd < 10 && y + yd < g.getRow(); yd++ ){
+    			// 		if(colored){
+    			// 			g.plotPixel( x + xd, y + yd, R, G, B);
+    			// 		}
+    			// 		else{
+    			// 		    g.plotPixel( x + xd, y + yd, 0, G, 0);
+    			// 		}
+                //
+    			// 	}
+    			// }
 
                 if(algo == "-convex"){
                     if(option == "-brute"){
                         //call brute force convex hull, it does all the work
                         brute_forceConvexHull(points);
                     } else if(option == "-divide"){
-                        divideAndConquerConvexHull(points);
+                        divideAndConquerConvexHull(points, g);
                     }
                 } else if(algo == "-closest"){
                     if(option == "-brute"){
@@ -219,7 +250,7 @@ int main(int argc, char** argv){
     		if(g.getMouseClick(x,y)){
                 //get the point clicked, make a new point with it,
                 // add it to the list of points and then rerun the selected algorithm
-                points.push_back(point(x, y));
+                points.push_back(point(x, COL_MAX-y));
     			rerunAlgorithm = true;
     		}
 

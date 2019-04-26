@@ -28,6 +28,8 @@ public:
 	point& operator=(const point& rhs);
 	void display(ostream&);
 	void draw(SDL_Plotter&);
+    /**draws a thicker box**/
+    void drawThick(SDL_Plotter&, int thickness);
 
 private:
 	int x, y;
