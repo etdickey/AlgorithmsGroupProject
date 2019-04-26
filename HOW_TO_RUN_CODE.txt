@@ -7,4 +7,18 @@ There are these options:: [-convex -closest] and [-divide -brute]
     - Brute = Brute Force
 
 Ex (command line of course):
-g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide
+    g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide
+
+
+
+TO RUN THE PYTHON generateDataWith.py
+
+generateDataWith.py numPoints xMax [yMax] > inputFile.in
+the arguments {number of points, xMax, optionally yMax (assumed xMax if not defined)}
+
+Ex (command line in a bash-type subsystem):
+    python3 generateDataWith.py 20 100 > inputFile.in
+    - Will generate 20 points with 0<=x<100 and 0<=y<100
+OR
+    python3 generateDataWith.py 200 100 1000000 > inputFile.in
+    - Will generate 200 points with 0<=x<100 and 0<=y<1000000
