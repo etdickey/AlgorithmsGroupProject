@@ -17,6 +17,8 @@ const int COL_MAX = 1000;
 /**
  * Solves the CLosest Pair problem with the brute force solution
  *
+ * @author Em Lakin
+ *
  * @param points the points to solve the problem
  * @return the closest pair of points
  */
@@ -44,6 +46,8 @@ pair<point, point> brute_forceClosestPair(vector<point> points){
 
 /**
  * Solves the Closest Pair problem with a Divide and Conquer strategy
+ *
+ * @author Josh Holland
  *
  * @param points the set of points to solve the problem for
  * @return the closest pair of points
@@ -73,6 +77,8 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
 /**
  * Solves the Convex Hull problem with the brute force solution
  *
+ * @author Mackenna Semeyn
+ *
  * @param  points the set of points to solve the problem for.
  * @return        the convex hull surrounding all the points
  */
@@ -100,6 +106,8 @@ vector<point> brute_forceConvexHull(vector<point> points){
 
 /**
  * Solves the Convex Hull problem with the divide and conquer solution
+ *
+ * @author Ethan Dickey
  *
  * @param  points the set of points to solve the problem for.
  * @return        the convex hull surrounding all the points
