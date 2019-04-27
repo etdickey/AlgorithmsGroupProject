@@ -1,9 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 #include <cmath>
-
 #include <algorithm>
 
 
@@ -51,13 +49,18 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
  * @param points the points to solve the problem
  * @return the closest pair of points
  */
-pair<point, point> brute_forceClosestPair(vector<point> points){
+pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
     pair<point, point> closestPair;// = make_pair(point(0,0), point(0,0));
     // cout << "Runing brute force closest pair" << endl;
-    // for(point p : points){
-    //     p.display(cout);
-    //     cout << endl;
-    // }
+    for(point p : points){
+        p.display(cout);
+        color_rgb c(256,0,99);
+        p.setColor(c);
+        p.draw(g);
+
+        cout << endl;
+    }
+    //g.update();
 
     //distance = sqrt(pow((two.getX() - one.getX()),2) + pow((two.getY() - one.getY()),2))
 
@@ -73,15 +76,17 @@ pair<point, point> brute_forceClosestPair(vector<point> points){
         closestPair = make_pair(points[0], points[1]);
     }
     else{
-        point one = points[0], two = points[1];
-        double minDist = sqrt(pow((two.getX() - one.getX()),2) + pow((two.getY() - one.getY()),2));
+        //point one = points[0], two = points[1];
+        double minDist = sqrt(pow((points[1].getX() - points[0].getX()),2) + pow((points[1].getY() - points[0].getY()),2));
         for(int i = 0; i < points.size(); i++){
             for(int j = i+1; j < points.size(); j++){
                 double newDist = sqrt(pow((points[j].getX() - points[i].getX()),2)
                 + pow((points[j].getY() - points[i].getY()),2));
                 if(newDist < minDist){
+                    //TODO: Need to compare points to make sure they are not the same point
                     minDist = newDist;
                     closestPair = make_pair(points[i], points[j]);
+
                 }
             }
         }
@@ -95,17 +100,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points){
     return closestPair;
 }
 
-/**
- * Solves the CLosest Pair problem with the brute force solution (and animates it)
- *
- * @param points the points to solve the problem
- * @return the closest pair of points
- */
-// pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
-//     pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-//
-//     return closestPair;
-// }
+
 
 //////////////////////////////////////////////////////////////////////////////// CP-DC
 /**
@@ -272,7 +267,7 @@ int main(int argc, char** argv){
                     }
                 } else if(algo == "-closest"){
                     if(option == "-brute"){
-                        pair<point, point> closestPair = brute_forceClosestPair(points);
+                        pair<point, point> closestPair = brute_forceClosestPair(points,g);
 
                         //TODO:: circle them on the plot
 
