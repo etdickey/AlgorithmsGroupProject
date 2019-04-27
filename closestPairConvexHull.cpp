@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
 #include "SDL_Plotter.h"
 #include "point.h"
@@ -46,12 +47,46 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
  * @return the closest pair of points
  */
 pair<point, point> brute_forceClosestPair(vector<point> points){
-    pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-    cout << "Runing brute force closest pair" << endl;
-    for(point p : points){
-        p.display(cout);
-        cout << endl;
+    pair<point, point> closestPair;// = make_pair(point(0,0), point(0,0));
+    // cout << "Runing brute force closest pair" << endl;
+    // for(point p : points){
+    //     p.display(cout);
+    //     cout << endl;
+    // }
+
+    //distance = sqrt(pow((two.getX() - one.getX()),2) + pow((two.getY() - one.getY()),2))
+
+    cout << "There are: " << points.size() << " points" << endl;
+    if(points.size() == 0){
+        //yikes, can this happen:
+        closestPair = make_pair(point(0,0), point(0,0));
     }
+    else if(points.size() == 1){
+        closestPair = make_pair(points[0], points[0]);
+    }
+    else if(points.size() == 2){
+        closestPair = make_pair(points[0], points[1]);
+    }
+    else{
+        point one = points[0], two = points[1];
+        double minDist = sqrt(pow((two.getX() - one.getX()),2) + pow((two.getY() - one.getY()),2));
+        for(int i = 0; i < points.size(); i++){
+            for(int j = i+1; j < points.size(); j++){
+                double newDist = sqrt(pow((points[j].getX() - points[i].getX()),2)
+                + pow((points[j].getY() - points[i].getY()),2));
+                if(newDist < minDist){
+                    minDist = newDist;
+                    closestPair = make_pair(points[i], points[j]);
+                }
+            }
+        }
+    }
+
+    cout << "Closest Pair: " ;
+    closestPair.first.display(cout);
+    cout << " x " ;
+    closestPair.second.display(cout);
+    cout << endl;
     return closestPair;
 }
 

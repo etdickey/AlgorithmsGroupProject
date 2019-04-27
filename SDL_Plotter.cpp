@@ -55,7 +55,7 @@ SDL_Plotter::SDL_Plotter(int r, int c, bool WITH_SOUND){
     memset(pixels, WHITE, col * row * sizeof(Uint32));
 
     //SOUND Thread Pool
-    Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 );
+    //Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 );
     soundCount = 0;
 
   }
