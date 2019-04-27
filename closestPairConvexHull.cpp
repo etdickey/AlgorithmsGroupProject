@@ -1,7 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 #include <algorithm>
+
 
 #include "SDL_Plotter.h"
 #include "point.h"
@@ -38,6 +40,22 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
     }
 }
 
+/**
+ * Computes the orientation of a pair triplet: collinear, clockwise, or counterclockwise
+ *
+ * @param p point one in the triplet
+ * @param q point two in the triplet
+ * @param r point three in the triplet
+ * @return 0 is collinear, 1 for clockwise, 2 for counterclockwise
+ */
+int orientation(point p, point q, point r){
+    int val = (q.getY() - p.getY()) * (r.getX() - q.getX()) -
+              (q.getX() - p.getX()) * (r.getY() - q.getY());
+
+    if (val == 0) return 0;  // collinear
+    return (val > 0) ? 1: 2; // clockwise or counterclockwise
+}
+
 //////////////////////////////////////////////////////////////////////////////// CP-BF
 /**
  * Solves the CLosest Pair problem with the brute force solution
@@ -47,27 +65,58 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
  * @param points the points to solve the problem
  * @return the closest pair of points
  */
-pair<point, point> brute_forceClosestPair(vector<point> points){
-    pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-    cout << "Runing brute force closest pair" << endl;
+pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
+    pair<point, point> closestPair;// = make_pair(point(0,0), point(0,0));
+    // cout << "Runing brute force closest pair" << endl;
     for(point p : points){
         p.display(cout);
+        color_rgb c(256,0,99);
+        p.setColor(c);
+        p.draw(g);
+
         cout << endl;
     }
+    //g.update();
+
+    //distance = sqrt(pow((two.getX() - one.getX()),2) + pow((two.getY() - one.getY()),2))
+
+    cout << "There are: " << points.size() << " points" << endl;
+    if(points.size() == 0){
+        //yikes, can this happen:
+        closestPair = make_pair(point(0,0), point(0,0));
+    }
+    else if(points.size() == 1){
+        closestPair = make_pair(points[0], points[0]);
+    }
+    else if(points.size() == 2){
+        closestPair = make_pair(points[0], points[1]);
+    }
+    else{
+        //point one = points[0], two = points[1];
+        double minDist = sqrt(pow((points[1].getX() - points[0].getX()),2) + pow((points[1].getY() - points[0].getY()),2));
+        for(int i = 0; i < points.size(); i++){
+            for(int j = i+1; j < points.size(); j++){
+                double newDist = sqrt(pow((points[j].getX() - points[i].getX()),2)
+                + pow((points[j].getY() - points[i].getY()),2));
+                if(newDist < minDist){
+                    //TODO: Need to compare points to make sure they are not the same point
+                    minDist = newDist;
+                    closestPair = make_pair(points[i], points[j]);
+
+                }
+            }
+        }
+    }
+
+    cout << "Closest Pair: " ;
+    closestPair.first.display(cout);
+    cout << " x " ;
+    closestPair.second.display(cout);
+    cout << endl;
     return closestPair;
 }
 
-/**
- * Solves the CLosest Pair problem with the brute force solution (and animates it)
- *
- * @param points the points to solve the problem
- * @return the closest pair of points
- */
-// pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
-//     pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-//
-//     return closestPair;
-// }
+
 
 //////////////////////////////////////////////////////////////////////////////// CP-DC
 /**
@@ -111,11 +160,39 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
  */
 vector<point> brute_forceConvexHull(vector<point> points){
     vector<point> convexHull;
-    cout << "Runing brute force convex hull" << endl;
+    cout << "Running brute force convex hull" << endl;
     for(point p : points){
         p.display(cout);
         cout << endl;
     }
+
+    int n = points.size();
+
+    // find leftmost point
+    int left = 0;
+    for(int i=1; i < n; i++){
+        if(points[i].getX() < points[left].getX()){
+            left = i;
+        }
+    }
+
+    int p = left;
+    int q;
+
+    do{
+
+        convexHull.push_back(points[p]);
+
+        q = (p + 1)%n;
+        for(int i=0; i < n; i++){
+            if(orientation(points[p], points[i], points[q]) == 2){
+                q = i;
+            }
+        }
+
+        p = q;
+    }while(p != left);
+
     return convexHull;
 }
 
@@ -234,7 +311,7 @@ int main(int argc, char** argv){
                     }
                 } else if(algo == "-closest"){
                     if(option == "-brute"){
-                        pair<point, point> closestPair = brute_forceClosestPair(points);
+                        pair<point, point> closestPair = brute_forceClosestPair(points,g);
 
                         //TODO:: circle them on the plot
 
