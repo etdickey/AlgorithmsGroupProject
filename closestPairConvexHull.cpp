@@ -38,6 +38,22 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
     }
 }
 
+/**
+ * Computes the orientation of a pair triplet: collinear, clockwise, or counterclockwise
+ *
+ * @param p point one in the triplet
+ * @param q point two in the triplet
+ * @param r point three in the triplet
+ * @return 0 is collinear, 1 for clockwise, 2 for counterclockwise
+ */
+int orientation(point p, point q, point r){
+    int val = (q.getY() - p.getY()) * (r.getX() - q.getX()) -
+              (q.getX() - p.getX()) * (r.getY() - q.getY());
+
+    if (val == 0) return 0;  // collinear
+    return (val > 0) ? 1: 2; // clockwise or counterclockwise
+}
+
 //////////////////////////////////////////////////////////////////////////////// CP-BF
 /**
  * Solves the CLosest Pair problem with the brute force solution
