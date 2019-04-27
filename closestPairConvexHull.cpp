@@ -1,7 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
 #include <cmath>
+
+#include <algorithm>
+
 
 #include "SDL_Plotter.h"
 #include "point.h"
@@ -38,6 +42,7 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////// CP-BF
 /**
  * Solves the CLosest Pair problem with the brute force solution
  *
@@ -102,6 +107,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points){
 //     return closestPair;
 // }
 
+//////////////////////////////////////////////////////////////////////////////// CP-DC
 /**
  * Solves the Closest Pair problem with a Divide and Conquer strategy
  *
@@ -132,6 +138,7 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
 //     return closestPair;
 // }
 
+//////////////////////////////////////////////////////////////////////////////// CH-BF
 /**
  * Solves the Convex Hull problem with the brute force solution
  *
@@ -162,6 +169,7 @@ vector<point> brute_forceConvexHull(vector<point> points){
 //     return convexHull;
 // }
 
+//////////////////////////////////////////////////////////////////////////////// CH-DC
 /**
  * Solves the Convex Hull problem with the divide and conquer solution (with animation if selected)
  *
@@ -171,8 +179,9 @@ vector<point> brute_forceConvexHull(vector<point> points){
  * @return        the convex hull surrounding all the points
  */
 vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, bool runAnimation = true){
-    vector<point> convexHull;
     cout << "Runing divide and conquer convex hull" << endl;
+    vector<point> convexHull;
+    sort(points.begin(), points.end());
     // for(point p : points){
     //     p.display(cout);
     //     cout << endl;
