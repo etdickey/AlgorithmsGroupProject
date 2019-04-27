@@ -40,6 +40,22 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
     }
 }
 
+/**
+ * Computes the orientation of a pair triplet: collinear, clockwise, or counterclockwise
+ *
+ * @param p point one in the triplet
+ * @param q point two in the triplet
+ * @param r point three in the triplet
+ * @return 0 is collinear, 1 for clockwise, 2 for counterclockwise
+ */
+int orientation(point p, point q, point r){
+    int val = (q.getY() - p.getY()) * (r.getX() - q.getX()) -
+              (q.getX() - p.getX()) * (r.getY() - q.getY());
+
+    if (val == 0) return 0;  // collinear
+    return (val > 0) ? 1: 2; // clockwise or counterclockwise
+}
+
 //////////////////////////////////////////////////////////////////////////////// CP-BF
 /**
  * Solves the CLosest Pair problem with the brute force solution
@@ -144,11 +160,39 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
  */
 vector<point> brute_forceConvexHull(vector<point> points){
     vector<point> convexHull;
-    cout << "Runing brute force convex hull" << endl;
+    cout << "Running brute force convex hull" << endl;
     for(point p : points){
         p.display(cout);
         cout << endl;
     }
+
+    int n = points.size();
+
+    // find leftmost point
+    int left = 0;
+    for(int i=1; i < n; i++){
+        if(points[i].getX() < points[left].getX()){
+            left = i;
+        }
+    }
+
+    int p = left;
+    int q;
+
+    do{
+
+        convexHull.push_back(points[p]);
+
+        q = (p + 1)%n;
+        for(int i=0; i < n; i++){
+            if(orientation(points[p], points[i], points[q]) == 2){
+                q = i;
+            }
+        }
+
+        p = q;
+    }while(p != left);
+
     return convexHull;
 }
 
