@@ -132,6 +132,34 @@ vector<point> brute_forceConvexHull(vector<point> points){
         p.display(cout);
         cout << endl;
     }
+
+    int n = points.size();
+
+    // find leftmost point
+    int left = 0;
+    for(int i=1; i < n; i++){
+        if(points[i].getX() < points[left].getX()){
+            left = i;
+        }
+    }
+
+    int p = left;
+    int q;
+
+    do{
+
+        convexHull.psuh_back(points[p]);
+
+        q = (p + 1)%n;
+        for(int i=0; i < n; i++){
+            if(orientation(points[p], points[i], points[q]) == 2){
+                q = i;
+            }
+        }
+
+        p = q;
+    }while(p != left);
+
     return convexHull;
 }
 
