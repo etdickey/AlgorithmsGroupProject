@@ -127,7 +127,7 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
  */
 vector<point> brute_forceConvexHull(vector<point> points){
     vector<point> convexHull;
-    cout << "Runing brute force convex hull" << endl;
+    cout << "Running brute force convex hull" << endl;
     for(point p : points){
         p.display(cout);
         cout << endl;
@@ -148,7 +148,7 @@ vector<point> brute_forceConvexHull(vector<point> points){
 
     do{
 
-        convexHull.psuh_back(points[p]);
+        convexHull.push_back(points[p]);
 
         q = (p + 1)%n;
         for(int i=0; i < n; i++){
