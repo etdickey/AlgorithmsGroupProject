@@ -99,7 +99,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                 double newDist = sqrt(pow((points[j].getX() - points[i].getX()),2)
                 + pow((points[j].getY() - points[i].getY()),2));
                 if(newDist < minDist){
-                    //TODO: Need to compare points to make sure they are not the same point
+                    
                     minDist = newDist;
                     closestPair = make_pair(points[i], points[j]);
 
