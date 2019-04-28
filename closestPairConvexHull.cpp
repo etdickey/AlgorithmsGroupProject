@@ -105,35 +105,55 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
         double minDist = sqrt(pow((points[1].getX() - points[0].getX()),2) + pow((points[1].getY() - points[0].getY()),2));
         for(int i = 0; i < points.size(); i++){
             for(int j = i+1; j < points.size(); j++){
+                points[i].setColor(c3);
+                points[j].setColor(c3);
                 double newDist = sqrt(pow((points[j].getX() - points[i].getX()),2)
                 + pow((points[j].getY() - points[i].getY()),2));
                 if(!(testingLine == closestLine)){
 
                     whiteLine.setP1(testingLine.getP1());
                     whiteLine.setP2(testingLine.getP2());
+
                     whiteLine.draw(g);
-                    g.update();
+                    whiteLine.getP1().drawThick(g,5);
+                    whiteLine.getP2().drawThick(g,5);
+                    //g.update();
                 }
                 testingLine.setP1(points[i]);
                 testingLine.setP2(points[j]);
+
                 testingLine.draw(g);
                 g.update();
-                g.Sleep(1000);
+                //g.Sleep(1000);
                 if(newDist < minDist){
-                    g.Sleep(1000);
-                    minDist = newDist;
-                    closestPair = make_pair(points[i], points[j]);
-                    whiteLine.setP1(closestLine.getP1());
-                    whiteLine.setP2(closestLine.getP2());
-                    whiteLine.draw(g);
-                    g.update();
+                    if(!(points[i] == points[j])){
+                //        g.Sleep(1000);
+                        minDist = newDist;
+                        closestPair = make_pair(points[i], points[j]);
+                        whiteLine.setP1(closestLine.getP1());
+                        whiteLine.setP2(closestLine.getP2());
+                        whiteLine.draw(g);
+                        whiteLine.getP2().drawThick(g,5);
+                        whiteLine.getP1().drawThick(g,5);
+                        // /cout << "CLOSE WHITE LINE DRAWN" << endl;
+                        //g.update();
+                    //    g.Sleep(1000);
 
-                    closestLine.setP1(closestPair.first);
-                    closestLine.setP2(closestPair.second);
-                    closestLine.draw(g);
-                    g.update();
+                        closestLine.setP1(closestPair.first);
+                        closestLine.getP1().drawThick(g,5);
+                        closestLine.setP2(closestPair.second);
+                        closestLine.getP2().drawThick(g,5);
+                        cout << "Drawing closest pair line: " ;
+                        closestLine.getP1().display(cout);
+                        closestLine.getP2().display(cout);
+                        closestLine.setColor(c1);
+                        closestLine.draw(g);
+                        g.update();
+
+                    }
 
                 }
+
             }
         }
     }
