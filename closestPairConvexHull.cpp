@@ -159,17 +159,17 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                     whiteLine.draw(g);
                     whiteLine.getP1().drawThick(g,5);
                     whiteLine.getP2().drawThick(g,5);
-                    //g.update();
+                    g.update();
                 }
                 testingLine.setP1(points[i]);
                 testingLine.setP2(points[j]);
 
                 testingLine.draw(g);
                 g.update();
-                //g.Sleep(1000);
+                g.Sleep(1000);
                 if(newDist < minDist){
                     if(!(points[i] == points[j])){
-                //        g.Sleep(1000);
+                       g.Sleep(1000);
                         minDist = newDist;
                         closestPair = make_pair(points[i], points[j]);
                         whiteLine.setP1(closestLine.getP1());
