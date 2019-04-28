@@ -281,8 +281,12 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, b
     cout << "Runing divide and conquer convex hull" << endl;
     vector<point> convexHull;
     sort(points.begin(), points.end());
-    for(point p : points){
-        p.display(cout);
+    // for(point p : points){
+    //     p.display(cout);
+    //     cout << endl;
+    // }
+    for(int i=0;i<points.size();i++){
+        points[i].display(cout);
         cout << endl;
     }
 
