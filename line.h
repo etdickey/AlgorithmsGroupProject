@@ -30,6 +30,20 @@ public:
 	void nextColor();
 	void resetColor();
 
+	bool operator==(const line& other){
+		if(this->p1 == other.p1){
+			if(this->p2 == other.p2){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+		else{
+			return false;
+		}
+	}
+
 private:
 	point p1, p2;
 	color_rgb color;

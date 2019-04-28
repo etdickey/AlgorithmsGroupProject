@@ -34,6 +34,17 @@ public:
         }
     }
 	void display(ostream&);
+	bool operator==(const point& other){
+		if(this->x != other.x){
+			return false;
+		}
+		else if(this->y != other.y){
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
 	void draw(SDL_Plotter&);
     /**draws a thicker box**/
     void drawThick(SDL_Plotter&, int thickness);

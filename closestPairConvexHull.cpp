@@ -14,8 +14,8 @@
 using namespace std;
 
 #define endl '\n'
-const int ROW_MAX = 1000;
-const int COL_MAX = 1000;
+const int ROW_MAX = 500;
+const int COL_MAX = 500;
 
 /**
  * Draws the points passed in onto the screen
@@ -97,12 +97,21 @@ int orientation(point p, point q, point r){
  */
 pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
     pair<point, point> closestPair;// = make_pair(point(0,0), point(0,0));
+    line testingLine;
+    line closestLine;
+    color_rgb c1(200,20,20);
+    color_rgb c2(20,200,20);
+    color_rgb c3(20,20,200);
+    color_rgb white(255,255,255);
+    line whiteLine;
+    whiteLine.setColor(white);
+    testingLine.setColor(c2);
+    closestLine.setColor(c1);
     // cout << "Runing brute force closest pair" << endl;
     for(point p : points){
         p.display(cout);
-        color_rgb c(256,0,99);
-        p.setColor(c);
-        p.draw(g);
+        p.setColor(c3);
+        p.drawThick(g, 5);
 
         cout << endl;
     }
@@ -128,10 +137,31 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
             for(int j = i+1; j < points.size(); j++){
                 double newDist = sqrt(pow((points[j].getX() - points[i].getX()),2)
                 + pow((points[j].getY() - points[i].getY()),2));
+                if(!(testingLine == closestLine)){
+
+                    whiteLine.setP1(testingLine.getP1());
+                    whiteLine.setP2(testingLine.getP2());
+                    whiteLine.draw(g);
+                    g.update();
+                }
+                testingLine.setP1(points[i]);
+                testingLine.setP2(points[j]);
+                testingLine.draw(g);
+                g.update();
+                g.Sleep(1000);
                 if(newDist < minDist){
-                    //TODO: Need to compare points to make sure they are not the same point
+                    g.Sleep(1000);
                     minDist = newDist;
                     closestPair = make_pair(points[i], points[j]);
+                    whiteLine.setP1(closestLine.getP1());
+                    whiteLine.setP2(closestLine.getP2());
+                    whiteLine.draw(g);
+                    g.update();
+
+                    closestLine.setP1(closestPair.first);
+                    closestLine.setP2(closestPair.second);
+                    closestLine.draw(g);
+                    g.update();
 
                 }
             }
@@ -251,10 +281,10 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, b
     cout << "Runing divide and conquer convex hull" << endl;
     vector<point> convexHull;
     sort(points.begin(), points.end());
-    // for(point p : points){
-    //     p.display(cout);
-    //     cout << endl;
-    // }
+    for(point p : points){
+        p.display(cout);
+        cout << endl;
+    }
 
     cout << "Drawing points" << endl;
     drawThickerPoints(points, g);
