@@ -25,7 +25,13 @@ const int COL_MAX = 1000;
  */
 void drawPoints(vector<point> points, SDL_Plotter& g){
     for(point p : points){
-        p.draw(g);
+        if(0 <= p.getX() && p.getX() < COL_MAX && 0 <= p.getY() && p.getY() < ROW_MAX){
+            p.draw(g);
+        } else {
+            cout << "ERROR: POINT OUT OF RANGE: ";
+            p.display(cout);
+            cout << endl;
+        }
     }
 }
 /**
@@ -36,7 +42,31 @@ void drawPoints(vector<point> points, SDL_Plotter& g){
  */
 void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
     for(point p : points){
-        p.drawThick(g, thickness);
+        if(0 <= p.getX() && p.getX() < COL_MAX && 0 <= p.getY() && p.getY() < ROW_MAX){
+            p.drawThick(g, thickness);
+        } else {
+            cout << "ERROR: POINT OUT OF RANGE: ";
+            p.display(cout);
+            cout << endl;
+        }
+    }
+}
+/**
+ * Draws the hull passed in
+ * @param points the hull to draw
+ * @param g      the plotter to plot onto
+ */
+void drawHull(vector<point> points, SDL_Plotter& g){
+    line temp;
+    point first, second;
+    for(int i=0;i<points.size();i++){
+        temp.setP1(points[i]);
+        if(i == points.size()-1){
+            second = points[0];
+        } else {
+            temp.setP2(points[i+1]);
+        }
+        temp.draw(g);
     }
 }
 
@@ -305,7 +335,8 @@ int main(int argc, char** argv){
                 if(algo == "-convex"){
                     if(option == "-brute"){
                         //call brute force convex hull, it does all the work
-                        brute_forceConvexHull(points);
+                        drawThickerPoints(points, g);
+                        drawHull(brute_forceConvexHull(points), g);
                     } else if(option == "-divide"){
                         divideAndConquerConvexHull(points, g);
                     }
