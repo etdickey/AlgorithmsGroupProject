@@ -18,6 +18,18 @@ const int ROW_MAX = 500;
 const int COL_MAX = 500;
 
 /**
+ * Clears the screen.
+ * @param g
+ */
+void clearScreen(SDL_Plotter& g){
+    for(int x=0;x<COL_MAX;x++){
+        for(int y=0;y<ROW_MAX;y++){
+            g.plotPixel(x, y, 255, 255, 255);
+        }
+    }
+    g.update();
+}
+/**
  * Draws the points passed in onto the screen
  *
  * @param points the points to be drawn
@@ -420,6 +432,7 @@ int main(int argc, char** argv){
                 // add it to the list of points and then rerun the selected algorithm
                 points.push_back(point(x, COL_MAX-y));
     			rerunAlgorithm = true;
+                clearScreen(g);
     		}
 
     		g.update();
