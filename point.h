@@ -26,8 +26,25 @@ public:
 	int getY();
 	color_rgb getColor();
 	point& operator=(const point& rhs);
-    bool operator<(const point& rhs){ return x < rhs.x ? true : y < rhs.y; }
+    bool operator<(const point& rhs){
+        if(x != rhs.x){
+            return x < rhs.x;
+        } else {
+            return y < rhs.y;
+        }
+    }
 	void display(ostream&);
+	bool operator==(const point& other){
+		if(this->x != other.x){
+			return false;
+		}
+		else if(this->y != other.y){
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
 	void draw(SDL_Plotter&);
     /**draws a thicker box**/
     void drawThick(SDL_Plotter&, int thickness);
