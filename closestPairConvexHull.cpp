@@ -18,6 +18,18 @@ const int ROW_MAX = 500;
 const int COL_MAX = 500;
 
 /**
+ * Clears the screen.
+ * @param g
+ */
+void clearScreen(SDL_Plotter& g){
+    for(int x=0;x<COL_MAX;x++){
+        for(int y=0;y<ROW_MAX;y++){
+            g.plotPixel(x, y, 255, 255, 255);
+        }
+    }
+    g.update();
+}
+/**
  * Draws the points passed in onto the screen
  *
  * @param points the points to be drawn
@@ -294,6 +306,125 @@ vector<point> brute_forceConvexHull(vector<point> points){
 // }
 
 //////////////////////////////////////////////////////////////////////////////// CH-DC
+int direction(point a, point b, point c){
+    int result = (b.getY()-a.getY())*(c.getX()-b.getX()) -
+                 (c.getY()-b.getY())*(b.getX()-a.getX());
+    if(result == 0){
+        return 0;
+    }
+    if(result > 0){
+        return 1;
+    }
+    return -1;
+}
+
+vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull){
+    //define helper variables
+    int n1 = leftHull.size(), n2 = rightHull.size();
+    int rightmostLeft = 0,//*max_element(leftHull.begin(), leftHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();}),
+        leftmostRight = 0;//*min_element(rightHull.begin(), rightHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();});
+
+    //find the right most of the left hull
+    for(int i=0;i<leftHull.size();i++){
+        if(leftHull[i].getX() > leftHull[rightmostLeft].getX()){//possible error with same x values
+            rightmostLeft = i;
+        }
+    }
+    //find the left most of the right hull
+    for(int i=0;i<rightHull.size();i++){
+        if(rightHull[i].getX() < rightHull[leftmostRight].getX()){//possible error with same x values
+            leftmostRight = i;
+        }
+    }
+
+    //push the beams up to the top -- move right most on left upwards and see if it makes a left turn
+    int upTanLeft = rightmostLeft, upTanRight = leftmostRight;
+    bool done = false;
+    while (!done) {// finding the upper tangent
+        done = true;
+        //move along the circle in ccw direction
+        while (direction(rightHull[upTanRight], leftHull[upTanLeft], leftHull[(upTanLeft+1)%n1]) >=0) {
+            upTanLeft = (upTanLeft + 1) % n1;
+        }
+        //move along the right convex hull in cw direction
+        while (direction(leftHull[upTanLeft], rightHull[upTanRight], rightHull[(n2+upTanRight-1)%n2]) <=0) {
+            upTanRight = (n2+upTanRight-1)%n2;
+            done = false;
+        }
+    }
+
+    //push beam to the bottom -- right most on left down and see if it makes a right turn
+    int lowTanLeft = rightmostLeft, lowTanRight = leftmostRight;
+    done = false;
+    while (!done) {//finding the lower tangent
+        done = true;
+        //move right hull down in ccw direction
+        while (direction(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2])>=0) {
+            lowTanRight = (lowTanRight+1)%n2;
+        }
+        //move left hull down in cw direction
+        while (direction(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1])<=0) {
+            lowTanLeft = (n1+lowTanLeft-1)%n1;
+            done = false;
+        }
+    }
+
+    //go from bottom index
+    vector<point> merged;
+    //start from upper left tangent, ccw around the left to the lower left tangent
+    for(int i=upTanLeft; i != lowTanLeft; i = (i+1)%n1){
+        merged.push_back(leftHull[i]);
+    }
+    //then go from lower right tangent ccw up to the upper right tangent
+    for(int i=lowTanRight; i!= upTanRight; i = (i+1)%n2){
+        merged.push_back(rightHull[i]);
+    }
+
+    return merged;
+}
+
+/**
+ * Executes the recursion aspect of the convex hull divide and conquer solution
+ *
+ * ASSUMES DATA IS SORTED BY X VALUE
+ *
+ * @param  points the points to solve
+ * @return        the convex hull of the points
+ */
+vector<point> convexHullRecurse(vector<point> points){
+    //it is much easier and virtually the same efficiency to brute force when the hull is 5 or less points
+    if(points.size() < 6){/////////////////////////////////////////////////////////here try just using 3 and returning that as the convex hull...
+        if(points.size() <= 3){///////////////////////////////////////////////////todo:: test my functions dumbo
+            return points;
+        }
+        //TODO:: brute force solution
+        cout << "Running brute force" << endl;
+        return brute_forceConvexHull(points);
+    } else {
+        vector<point> left, right;
+        //split the problem
+        for(int i=0;i<points.size()/2;i++){
+            left.push_back(points[i]);
+        }
+        for(int i=points.size()/2;i<points.size();i++){
+            right.push_back(points[i]);
+        }
+
+        //recurse
+        vector<point> leftHull = convexHullRecurse(left),
+                      rightHull = convexHullRecurse(right);
+        cout << "Left hull: ";
+        for(point p : leftHull){ p.display(cout); cout << " "; }
+        cout << endl;
+        cout << "Right hull: ";
+        for(point p : rightHull){ p.display(cout); cout << " "; }
+        cout << endl;
+
+        //merge
+        return mergeConvexHullDC(leftHull, rightHull);
+    }
+}
+
 /**
  * Solves the Convex Hull problem with the divide and conquer solution (with animation if selected)
  *
@@ -317,6 +448,9 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, b
 
     cout << "Drawing points" << endl;
     drawThickerPoints(points, g);
+
+    convexHull = convexHullRecurse(points);
+    drawHull(convexHull, g);
 
     return convexHull;
 }
@@ -425,6 +559,7 @@ int main(int argc, char** argv){
                 // add it to the list of points and then rerun the selected algorithm
                 points.push_back(point(x, COL_MAX-y));
     			rerunAlgorithm = true;
+                clearScreen(g);
     		}
 
     		g.update();
