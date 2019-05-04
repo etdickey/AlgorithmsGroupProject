@@ -281,8 +281,17 @@ vector<point> brute_forceConvexHull(vector<point> points){
                     break;
                 }
             }
+
+            if(rightSideOfTheLine){
+                if(find(convexHull.begin(), convexHull.end(), pI) != convexHull.end()){
+                    convexHull.push_back(pI);
+                    point final = pJ;
+                }
+            }
         }
     }
+
+    convexHull.push_back(final); // add last point to hull
 
     for(point p : convexHull){
         p.display(cout);
