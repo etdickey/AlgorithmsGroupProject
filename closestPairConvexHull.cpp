@@ -284,6 +284,11 @@ vector<point> brute_forceConvexHull(vector<point> points){
         }
     }
 
+    for(point p : convexHull){
+        p.display(cout);
+        cout << endl;
+    }
+
 
     return convexHull;
 }
