@@ -115,6 +115,9 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 
         cout << endl;
     }
+    for(int i = 0; i < points.size(); i++){
+        points[i].drawThick(g, 5);
+    }
     //g.update();
 
     //distance = sqrt(pow((two.getX() - one.getX()),2) + pow((two.getY() - one.getY()),2))
@@ -153,6 +156,8 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                 testingLine.setP2(points[j]);
 
                 testingLine.draw(g);
+                testingLine.display(cout);
+                cout << endl;
                 g.update();
                 g.Sleep(1000);
                 if(newDist < minDist){
