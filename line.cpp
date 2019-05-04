@@ -66,33 +66,28 @@ void line::draw(SDL_Plotter& g){
     // this->p2.setColor(color_rgb(255, 0, 0));
     // this->p2.drawThick(g, 5);
     //if both points are the same, won't work
-    // if((p1.getX() != p2.getX()) || (p1.getY() != p2.getY())){
-        double dx= p2.getX()-p1.getX(), dy= p2.getY()-p1.getY(), largerChange;
-        double x=p1.getX(), y=p1.getY();
-        if(p2.getX() < x){
-            x=p2.getX();
-            y=p2.getY();
-        }
+    double dx= p2.getX()-p1.getX(), dy= p2.getY()-p1.getY(), largerChange;
+    double x=p1.getX(), y=p1.getY();
+    if(p2.getX() < x){
+        x=p2.getX();
+        y=p2.getY();
+    }
 
-        if(dx>=dy)
-            largerChange=dx;
-        else
-            largerChange=dy;
+    if(dx>=dy)
+        largerChange=dx;
+    else
+        largerChange=dy;
 
-        dx/=largerChange;
-        dy/=largerChange;
-        x += (dx*largerChange);
-        y += (dy*largerChange);
+    dx/=largerChange;
+    dy/=largerChange;
+    x += (dx*largerChange);
+    y += (dy*largerChange);
 
-        for(int i=1; i<=largerChange; ++i){
-            g.plotPixel(x, g.getRow() - y, color.getR(), color.getG(), color.getB());
-            x-=dx;
-            y-=dy;
-        }
-    // } else {
-    //     p1.setColor(this->color);
-    //     p1.draw(g);
-    // }
+    for(int i=1; i<=largerChange; ++i){
+        g.plotPixel(x, g.getRow() - y, color.getR(), color.getG(), color.getB());
+        x-=dx;
+        y-=dy;
+    }
 }
 
 /**
