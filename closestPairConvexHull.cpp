@@ -255,8 +255,8 @@ vector<point> brute_forceConvexHull(vector<point> points){
         cout << endl;
     }
 
-    for(int i=0; i < points.length(); i++){
-        for(int j=0; j < points.length(); j++){
+    for(int i=0; i < points.size(); i++){
+        for(int j=0; j < points.size(); j++){
             if(i == j){
                 continue;   // go to next pair of points
             }
@@ -265,7 +265,7 @@ vector<point> brute_forceConvexHull(vector<point> points){
             point pJ = points[j];
 
             bool rightSideOfTheLine = true;
-            for(int k=0; k < points.length(); k++){
+            for(int k=0; k < points.size(); k++){
                 if(k == i || k == j){
                     continue;
                 }
