@@ -82,19 +82,16 @@ void drawHull(vector<point> points, SDL_Plotter& g){
 }
 
 /**
- * Computes the orientation of a pair triplet: collinear, clockwise, or counterclockwise
  *
- * @param p point one in the triplet
- * @param q point two in the triplet
- * @param r point three in the triplet
- * @return 0 is collinear, 1 for clockwise, 2 for counterclockwise
+ * @param endpointA the first point of the line being tested
+ * @param endpointB the second point of the line being tested
+ * @param testPoint the point being tested to see what side of the line
+ *          it is on
+ * @return less than 0 if on the left, greater than 0 if on the right
  */
-int orientation(point p, point q, point r){
-    int val = (q.getY() - p.getY()) * (r.getX() - q.getX()) -
-              (q.getX() - p.getX()) * (r.getY() - q.getY());
-
-    if (val == 0) return 0;  // collinear
-    return (val > 0) ? 1: 2; // clockwise or counterclockwise
+int whichSideOfLine(point endpointA, point endpointB, point testPoint){
+    return (testPoint.getX() - endpointA.getX()) * (endpointB.getY() - endpointA.getY())
+                - (testPoint.getY() - endpointA.getY()) * (endpointB.getX() - endpointA.getX());
 }
 
 //////////////////////////////////////////////////////////////////////////////// CP-BF
@@ -251,38 +248,51 @@ pair<point, point> divideAndConquerClosestPair(vector<point> points){
  */
 vector<point> brute_forceConvexHull(vector<point> points){
     vector<point> convexHull;
+    point final;
     cout << "Running brute force convex hull" << endl;
     for(point p : points){
         p.display(cout);
         cout << endl;
     }
 
-    int n = points.size();
+    for(int i=0; i < points.size(); i++){
+        for(int j=0; j < points.size(); j++){
+            if(i == j){
+                continue;   // go to next pair of points
+            }
 
-    // find leftmost point
-    int left = 0;
-    for(int i=1; i < n; i++){
-        if(points[i].getX() < points[left].getX()){
-            left = i;
+            point pI = points[i];
+            point pJ = points[j];
+
+            bool rightSideOfTheLine = true;
+            for(int k=0; k < points.size(); k++){
+                if(k == i || k == j){
+                    continue;
+                }
+
+                int position = whichSideOfLine(pI, pJ, points[k]);
+                if(position < 0){
+                    rightSideOfTheLine = false;
+                    break;
+                }
+            }
+
+            if(rightSideOfTheLine){
+                if(find(convexHull.begin(), convexHull.end(), pI) != convexHull.end()){
+                    convexHull.push_back(pI);
+                    final = pJ;
+                }
+            }
         }
     }
 
-    int p = left;
-    int q;
+    convexHull.push_back(final); // add last point to hull
 
-    do{
+    for(point p : convexHull){
+        p.display(cout);
+        cout << endl;
+    }
 
-        convexHull.push_back(points[p]);
-
-        q = (p + 1)%n;
-        for(int i=0; i < n; i++){
-            if(orientation(points[p], points[i], points[q]) == 2){
-                q = i;
-            }
-        }
-
-        p = q;
-    }while(p != left);
 
     return convexHull;
 }
