@@ -27,7 +27,6 @@ void clearScreen(SDL_Plotter& g){
             g.plotPixel(x, y, 255, 255, 255);
         }
     }
-    g.update();
 }
 /**
  * Draws the points passed in onto the screen
@@ -494,7 +493,7 @@ int main(int argc, char** argv){
             return 1;
         }
 
-        bool rerunAlgorithm = true;
+        bool rerunAlgorithm = true, update = true;
         bool colored = false;
         int x,y, xd, yd;
         int R,G,B;
@@ -543,6 +542,7 @@ int main(int argc, char** argv){
                 }
 
                 rerunAlgorithm = false;
+                g.update();
     		}
 
     		if(g.kbhit()){
@@ -555,9 +555,8 @@ int main(int argc, char** argv){
                 points.push_back(point(x, COL_MAX-y));
     			rerunAlgorithm = true;
                 clearScreen(g);
+                g.update();
     		}
-
-    		g.update();
         }
     } else {
         cout << "ERROR: Number of arguments must be 2: [-convex, -closest] [-brute -divide]" << endl;
