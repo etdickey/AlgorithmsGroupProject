@@ -262,7 +262,8 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      color_rgb c2(20,200,20);
      color_rgb c3(20,20,200);
      color_rgb white(255,255,255);
-     line todraw;
+     color_rgb black(0,0,0);
+     line todraw, dplus, dminus;
 
      //right is 1 more than the index that it stops at
      int size = right-left;
@@ -306,7 +307,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 
      double vertical_line_x = points[middle_index].getX() + (points[middle_index+1].getX()-points[middle_index].getX())/2;
      point todrawP1, todrawP2;
-/*     todrawP1.setX((int)vertical_line_x);
+     todrawP1.setX((int)vertical_line_x);
      todrawP2.setX((int)vertical_line_x);
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
@@ -316,11 +317,11 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      todraw.setColor(c2);
      todraw.draw(g);
      g.update();
-     g.Sleep(250);
+     g.Sleep(500);
      todraw.setColor(white);
      todraw.draw(g);
      g.update();
-     drawThickerPoints(points, g, 5);*/
+     drawThickerPoints(points, g, 5);
 
      // = points[left].getX() + (points[right-1].getX()-points[left].getX())/2;
 
@@ -340,9 +341,10 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      }
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
-     todraw.setP1(todrawP1);
-     todraw.setP2(todrawP2);
-     todraw.draw(g);
+     dminus.setP1(todrawP1);
+     dminus.setP2(todrawP2);
+     dminus.setColor(black);
+     dminus.draw(g);
      g.update();
      if(vertical_line_x + min_d <= COL_MAX){
          todrawP1.setX((int)vertical_line_x + min_d);
@@ -353,9 +355,10 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      }
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
-     todraw.setP1(todrawP1);
-     todraw.setP2(todrawP2);
-     todraw.draw(g);
+     dplus.setP1(todrawP1);
+     dplus.setP2(todrawP2);
+     dplus.setColor(black);
+     dplus.draw(g);
      g.update();
      g.Sleep(500);
 
@@ -380,6 +383,16 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
          min_d = min_middle;
          result = min_middle_set;
      }
+
+     dplus.setColor(white);
+     dplus.draw(g);
+     dminus.setColor(white);
+     dminus.draw(g);
+     drawThickerPoints(points, g, 5);
+     todraw.setColor(white);
+     todraw.draw(g);
+     g.update();
+
 
      return result;
 
