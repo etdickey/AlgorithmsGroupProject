@@ -9,6 +9,7 @@
 #ifndef LINE_H
 #define LINE_H
 #include "point.h"
+#include <cmath>
 
 class line {
 public:
