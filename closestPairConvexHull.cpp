@@ -182,20 +182,20 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                     whiteLine.draw(g);
                     whiteLine.getP1().drawThick(g,5);
                     whiteLine.getP2().drawThick(g,5);
-                    g.update();
+                    // g.update();
                 }
                 testingLine.setP1(points[i]);
                 testingLine.setP2(points[j]);
 
                 testingLine.draw(g);
-                testingLine.display(cout);
-                cout << endl;
-                g.update();
-                g.Sleep(1000);
+                // testingLine.display(cout);
+                // cout << endl;
+                // g.update();
+                // g.Sleep(500);
                 if(newDist < minDist){
                     if(!(points[i] == points[j])){
                         closestLine.draw(g);
-                        g.Sleep(1000);
+                        // g.Sleep(500);
                         minDist = newDist;
                         closestPair = make_pair(points[i], points[j]);
                         whiteLine.setP1(closestLine.getP1());
@@ -211,17 +211,15 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                         closestLine.getP1().drawThick(g,5);
                         closestLine.setP2(closestPair.second);
                         closestLine.getP2().drawThick(g,5);
-                        cout << "Drawing closest pair line: " ;
-                        closestLine.getP1().display(cout);
-                        closestLine.getP2().display(cout);
+                        // cout << "Drawing closest pair line: " ;
+                        // closestLine.getP1().display(cout);
+                        // closestLine.getP2().display(cout);
                         closestLine.setColor(c1);
                         closestLine.draw(g);
-                        g.update();
-
+                        // g.update();
                     }
-
                 }
-
+                g.update();
             }
         }
     }
@@ -368,10 +366,10 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
     line toAdd;
 
     cout << "\nRunning brute force convex hull on " << points.size() << " points" << endl;
-    for(point p : points){
-        p.display(cout);
-    }
-    cout << endl;
+    // for(point p : points){
+    //     p.display(cout);
+    // }
+    // cout << endl;
 
     for(int i=0; i < points.size(); i++){
         for(int j=0; j < points.size(); j++){
@@ -638,10 +636,10 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, b
     cout << "Runing divide and conquer convex hull" << endl;
     vector<point> convexHull;
     sort(points.begin(), points.end());
-    for(point p : points){
-        p.display(cout);
-        cout << endl;
-    }
+    // for(point p : points){
+    //     p.display(cout);
+    //     cout << endl;
+    // }
 
     // cout << "Drawing points" << endl;
     drawThickerPoints(points, g);
