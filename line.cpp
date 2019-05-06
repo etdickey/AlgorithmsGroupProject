@@ -68,10 +68,6 @@ void line::draw(SDL_Plotter& g){
     //if both points are the same, won't work
     double dx = p2.getX()-p1.getX(), dy = p2.getY()-p1.getY(), largerChange;
     double x = p1.getX(), y = p1.getY();
-    // if(p2.getX() < x){
-    //     x=p2.getX();
-    //     y=p2.getY();
-    // }
 
     if(fabs(dx) >= fabs(dy))
         largerChange = fabs(dx);
@@ -80,8 +76,6 @@ void line::draw(SDL_Plotter& g){
 
     dx/=largerChange;
     dy/=largerChange;
-    // x += (dx*largerChange);
-    // y += (dy*largerChange);
 
     for(int i=1; i<=largerChange; ++i){
         g.plotPixel(x, g.getRow() - y, color.getR(), color.getG(), color.getB());
