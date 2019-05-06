@@ -333,23 +333,33 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
          }
      }
 
-     todrawP1.setX((int)(vertical_line_x - min_d));
-     todrawP2.setX((int)(vertical_line_x - min_d));
-     todrawP1.setY(ROW_MAX);
-     todrawP2.setY(0);
-     todraw.setP1(todrawP1);
-     todraw.setP2(todrawP2);
-     //todraw.draw(g);
-     g.update();
-     todrawP1.setX((int)vertical_line_x + min_d);
-     todrawP2.setX((int)vertical_line_x + min_d);
+     if(vertical_line_x - min_d >= 0){
+         todrawP1.setX((int)(vertical_line_x - min_d));
+         todrawP2.setX((int)(vertical_line_x - min_d));
+     }else{
+         todrawP1.setX(0);
+         todrawP2.setX(0);
+     }
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
      todraw.setP1(todrawP1);
      todraw.setP2(todrawP2);
      todraw.draw(g);
      g.update();
-     g.Sleep(2000);
+     if(vertical_line_x + min_d <= COL_MAX){
+         todrawP1.setX((int)vertical_line_x + min_d);
+         todrawP2.setX((int)vertical_line_x + min_d);
+     }else{
+         todrawP1.setX(COL_MAX);
+         todrawP2.setX(COL_MAX);
+     }
+     todrawP1.setY(ROW_MAX);
+     todrawP2.setY(0);
+     todraw.setP1(todrawP1);
+     todraw.setP2(todrawP2);
+     todraw.draw(g);
+     g.update();
+     g.Sleep(500);
 
      if(closer_to_line.size() < 2){
          return result;
