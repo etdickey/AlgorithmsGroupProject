@@ -308,7 +308,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
          todraw.setColor(c3);
          todraw.draw(g);
          g.update();
-         g.Sleep(250);
+         g.Sleep(500);
          todraw.setColor(white);
          todraw.draw(g);
          g.update();
@@ -352,6 +352,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      todraw.draw(g);
      g.update();
      g.Sleep(250);
+
      todraw.setColor(white);
      todraw.draw(g);
      g.update();
@@ -392,9 +393,17 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      todraw.setP2(todrawP2);
      todraw.draw(g);
      g.update();
-     g.Sleep(500);
+     g.Sleep(1000);
 
      if(closer_to_line.size() < 2){
+         dplus.setColor(white);
+         dplus.draw(g);
+         dminus.setColor(white);
+         dminus.draw(g);
+         todraw.setColor(white);
+         todraw.draw(g);
+         drawThickerPoints(points, g, 5);
+         g.update();
          return result;
      }
      //sort by y:
@@ -416,6 +425,16 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
          result = min_middle_set;
      }
 
+     dplus.setColor(white);
+     dplus.draw(g);
+     dminus.setColor(white);
+     dminus.draw(g);
+     todraw.setColor(white);
+     todraw.draw(g);
+     drawThickerPoints(points, g, 5);
+     g.update();
+
+
      return result;
 
  }
@@ -436,6 +455,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      todraw.setP2(closestPair.second);
      todraw.setColor(color_rgb(255, 0, 0));
      todraw.draw(g);
+     g.update();
 
      closestPair.first.drawThick(g,5);
      closestPair.second.drawThick(g,5);
@@ -586,6 +606,8 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
 //////////////////////////////////////////////////////////////////////////////// CH-DC
 vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull, SDL_Plotter& g){
     //define helper variables
+    line todraw;
+    color_rgb navy(255, 255, 0);
     int n1 = leftHull.size(), n2 = rightHull.size();
     int rightmostLeft = 0,//*max_element(leftHull.begin(), leftHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();}),
         leftmostRight = 0;//*min_element(rightHull.begin(), rightHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();});
@@ -624,8 +646,10 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
     // rightHull[upTanRight].display(cout);
     // cout << endl;
     line temp(leftHull[upTanLeft], rightHull[upTanRight]);
-    temp.setColor(color_rgb(255,255,0));
+    temp.setColor(navy);
     temp.draw(g);
+    g.update();
+    g.Sleep(1000);
 
 
     //push beam to the bottom -- right most on left down and see if it makes a right turn
@@ -649,8 +673,10 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
     // rightHull[lowTanRight].display(cout);
     // cout << endl;
     temp = line(leftHull[lowTanLeft], rightHull[lowTanRight]);
-    temp.setColor(color_rgb(255,255,0));
+    temp.setColor(navy);
     temp.draw(g);
+    g.update();
+    g.Sleep(1000);
 
 
     //go from bottom index
