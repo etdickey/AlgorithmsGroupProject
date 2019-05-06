@@ -138,8 +138,16 @@ void point::draw(SDL_Plotter& g){
  *  class
  */
 void point::drawThick(SDL_Plotter& g, int thickness){
-    for(int dx = 0; dx < thickness && x + dx < g.getCol(); dx++ ){
-        for(int dy = 0; dy < thickness && y + dy < g.getRow(); dy++ ){
+    int startX = -1*thickness/2, startY = -1*thickness/2;
+    if(startX + x < 0){
+        startX = 0;
+    }
+    if(startY + y < 0){
+        startY = 0;
+    }
+
+    for(int dx = startX; dx < thickness/2 && x + dx < g.getCol(); dx++ ){
+        for(int dy = startY; dy < thickness/2 && y + dy < g.getRow(); dy++ ){
             g.plotPixel( x + dx, g.getRow() - (y + dy), color.getR(), color.getG(), color.getB());
         }
     }
