@@ -68,7 +68,6 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
  * @param g      the plotter to plot onto
  */
 void drawHull(vector<point> points, SDL_Plotter& g, color_rgb c = color_rgb(0,0,0)){
-    cout << "Called draw hull with " << points.size() << " points" << endl;
     line temp;
 
     for(int i=0;i<points.size();i++){
@@ -89,7 +88,6 @@ void drawHull(vector<point> points, SDL_Plotter& g, color_rgb c = color_rgb(0,0,
  * @param g      the plotter to plot onto
  */
 void drawHullLines(vector<line> lines, SDL_Plotter& g){
-    cout << "Called draw hull with " << lines.size() << " lines" << endl;
     for(auto i : lines){
         i.draw(g);
     }
@@ -109,7 +107,7 @@ int direction(point a, point b, point c){
         return 0;
     }
     int result = (b.getY()-a.getY())*(c.getX()-b.getX()) -
-              (c.getY()-b.getY())*(b.getX()-a.getX());
+                 (c.getY()-b.getY())*(b.getX()-a.getX());
     if(result == 0){
         return 0;
     }
@@ -273,7 +271,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 
      pair<point,point> result;
 
-     result = divideAndConquerClosestPair_recurse(points,left,left+size/2);
+     result = divideAndConquerClosestPair_recurse(points,left,left+size/2+1);
      double minLeft = distanceTo(result.first,result.second);
      double min_d = minLeft;
 
@@ -457,6 +455,11 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
             }
         }
     }
+    if(convexHull.size() > 2 && direction(convexHull[0], convexHull[1], convexHull[2]) >= 0){//if it's a right turn
+        //reverse it
+        reverse(convexHull.begin(), convexHull.end());
+    }
+
     cout << "Convex hull: " << endl;
     for(auto i : convexHull){
         i.display(cout);
@@ -479,7 +482,7 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
 // }
 
 //////////////////////////////////////////////////////////////////////////////// CH-DC
-vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull){
+vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull, SDL_Plotter& g){
     //define helper variables
     int n1 = leftHull.size(), n2 = rightHull.size();
     int rightmostLeft = 0,//*max_element(leftHull.begin(), leftHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();}),
@@ -487,13 +490,13 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull)
 
     //find the right most of the left hull
     for(int i=0;i<leftHull.size();i++){
-        if(leftHull[i].getX() > leftHull[rightmostLeft].getX()){//possible error with same x values
+        if(leftHull[i].getX() > leftHull[rightmostLeft].getX()){
             rightmostLeft = i;
         }
     }
     //find the left most of the right hull
     for(int i=0;i<rightHull.size();i++){
-        if(rightHull[i].getX() < rightHull[leftmostRight].getX()){//possible error with same x values
+        if(rightHull[i].getX() < rightHull[leftmostRight].getX()){
             leftmostRight = i;
         }
     }
@@ -513,6 +516,15 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull)
             done = false;
         }
     }
+    // cout << "Upper tangent: ";
+    // leftHull[upTanLeft].display(cout);
+    // cout << " and ";
+    // rightHull[upTanRight].display(cout);
+    // cout << endl;
+    line temp(leftHull[upTanLeft], rightHull[upTanRight]);
+    temp.setColor(color_rgb(255,255,0));
+    temp.draw(g);
+
 
     //push beam to the bottom -- right most on left down and see if it makes a right turn
     int lowTanLeft = rightmostLeft, lowTanRight = leftmostRight;
@@ -520,15 +532,24 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull)
     while (!done) {//finding the lower tangent
         done = true;
         //move right hull down in ccw direction
-        while (direction(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2])>=0) {
+        while (direction(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2]) >= 0) {
             lowTanRight = (lowTanRight+1)%n2;
         }
         //move left hull down in cw direction
-        while (direction(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1])<=0) {
+        while (direction(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1]) <= 0) {
             lowTanLeft = (n1+lowTanLeft-1)%n1;
             done = false;
         }
     }
+    // cout << "Lower tangent: ";
+    // leftHull[lowTanLeft].display(cout);
+    // cout << " and ";
+    // rightHull[lowTanRight].display(cout);
+    // cout << endl;
+    temp = line(leftHull[lowTanLeft], rightHull[lowTanRight]);
+    temp.setColor(color_rgb(255,255,0));
+    temp.draw(g);
+
 
     //go from bottom index
     vector<point> merged;
@@ -536,10 +557,13 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull)
     for(int i=upTanLeft; i != lowTanLeft; i = (i+1)%n1){
         merged.push_back(leftHull[i]);
     }
+    merged.push_back(leftHull[lowTanLeft]);//add the last one
+
     //then go from lower right tangent ccw up to the upper right tangent
     for(int i=lowTanRight; i!= upTanRight; i = (i+1)%n2){
         merged.push_back(rightHull[i]);
     }
+    merged.push_back(rightHull[upTanRight]);
 
     return merged;
 }
@@ -554,12 +578,16 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull)
  */
 vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
     //it is much easier and virtually the same efficiency to brute force when the hull is 5 or less points
-    if(points.size() < 6){/////////////////////////////////////////////////////////here try just using 3 and returning that as the convex hull...
-        if(points.size() <= 3){///////////////////////////////////////////////////todo:: test my functions dumbo
+    if(points.size() < 6){
+        if(points.size() <= 3){
+            if(points.size() > 2 && direction(points[0], points[1], points[2]) >= 0){//if it's a right turn
+                //reverse it
+                reverse(points.begin(), points.end());
+            }
             return points;
         }
-        //TODO:: brute force solution
-        cout << "Running brute force" << endl;
+
+        // cout << "Running brute force with " << points.size() << " points" << endl;
         return brute_forceConvexHull(points, g);
     } else {
         vector<point> left, right;
@@ -574,19 +602,27 @@ vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
         //recurse
         vector<point> leftHull = convexHullRecurse(left, g),
                       rightHull = convexHullRecurse(right, g);
-        cout << "Left hull: ";
-        for(point p : leftHull){ p.display(cout); cout << " "; }
-        cout << endl;
-        cout << "Right hull: ";
-        for(point p : rightHull){ p.display(cout); cout << " "; }
-        cout << endl;
-        cout << "Drawing left hull (red) and right hull (blue)" << endl;
-
+        // cout << "Left hull: ";
+        // for(point p : leftHull){ p.display(cout); cout << " "; }
+        // cout << endl;
+        // cout << "Right hull: ";
+        // for(point p : rightHull){ p.display(cout); cout << " "; }
+        // cout << endl;
+        // cout << "Drawing left hull (red, " << leftHull.size() << ") and right hull (green " << rightHull.size() << ")" << endl;
+        clearScreen(g);
+        drawThickerPoints(points, g);
         drawHull(leftHull, g, color_rgb(255, 0, 0));
-        drawHull(rightHull, g, color_rgb(255, 0, 0));
+        drawHull(rightHull, g, color_rgb(0, 255, 0));
         g.update();
         //merge
-        return mergeConvexHullDC(leftHull, rightHull);
+        vector<point> temp = mergeConvexHullDC(leftHull, rightHull, g);
+        // cout << "Drawing merged (blue) " << endl;
+        drawHull(temp, g, color_rgb(0,0,255));
+        g.update();
+        // if(temp.size() == 1){
+            // g.Sleep(200000);
+        // }
+        return temp;
     }
 }
 
@@ -602,20 +638,16 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, b
     cout << "Runing divide and conquer convex hull" << endl;
     vector<point> convexHull;
     sort(points.begin(), points.end());
-    // for(point p : points){
-    //     p.display(cout);
-    //     cout << endl;
-    // }
-    for(int i=0;i<points.size();i++){
-        points[i].display(cout);
+    for(point p : points){
+        p.display(cout);
         cout << endl;
     }
 
-    cout << "Drawing points" << endl;
+    // cout << "Drawing points" << endl;
     drawThickerPoints(points, g);
 
     convexHull = convexHullRecurse(points, g);
-    drawHull(convexHull, g, color_rgb(255, 0, 0));
+    drawHull(convexHull, g, color_rgb(0, 0, 255));
 
     return convexHull;
 }
