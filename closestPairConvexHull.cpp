@@ -27,7 +27,6 @@ void clearScreen(SDL_Plotter& g){
             g.plotPixel(x, y, 255, 255, 255);
         }
     }
-    g.update();
 }
 /**
  * Draws the points passed in onto the screen
@@ -221,15 +220,100 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
  * @param points the set of points to solve the problem for
  * @return the closest pair of points
  */
-pair<point, point> divideAndConquerClosestPair(vector<point> points){
-    pair<point, point> closestPair = make_pair(point(0,0), point(0,0));
-    cout << "Runing divide and conquer closest pair" << endl;
-    for(point p : points){
-        p.display(cout);
-        cout << endl;
-    }
-    return closestPair;
-}
+ double distanceTo(point &thisone, point& other){
+     return sqrt((thisone.getX()-other.getX())*(thisone.getX()-other.getX())+(thisone.getY()-other.getY())*(thisone.getY()-other.getY()));
+ }
+ 
+ bool sort_by_x(point& a, point& b){
+     return a.getX() < b.getX();
+ }
+ 
+ bool sort_by_y(point& a, point& b){
+     return a.getY() < b.getY();
+ }
+ 
+ 
+ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int left, int right){
+     //right is 1 more than the index that it stops at 
+     int size = right-left;
+     if(size == 2){
+         return make_pair(points[left],points[left+1]);
+     }
+     point middle = points[left+size/2];
+     
+     //subarray 1: left,left+size/2
+     //subarray 2: left+size/2+1,right
+     
+     pair<point,point> result;
+     
+     result = divideAndConquerClosestPair_recurse(points,left,left+size/2);
+     double minLeft = distanceTo(result.first,result.second);
+     double min_d = minLeft;
+     
+     if(right-(left+size/2+1) > 1){
+         pair<point,point> rightone = divideAndConquerClosestPair_recurse(points,left+size/2+1,right);
+         double minRight= distanceTo(rightone.first,rightone.second);
+         
+         if(minRight < min_d){
+             min_d = minRight;
+             result = rightone;
+         }
+     }
+     
+     int middle_index = left+size/2;
+     
+     double vertical_line_x = points[middle_index].getX() + (points[middle_index+1].getX()-points[middle_index].getX())/2;
+     // = points[left].getX() + (points[right-1].getX()-points[left].getX())/2;
+     
+     vector<point> closer_to_line;
+     for(point point: points) {
+         if(abs(point.getX()-vertical_line_x) < min_d) {
+             closer_to_line.push_back(point);
+         }
+     }
+     
+     if(closer_to_line.size() < 2){
+         return result;
+     }
+     //sort by y:
+     sort(closer_to_line.begin(),closer_to_line.end(),sort_by_y);
+     double min_middle = distanceTo(closer_to_line[1],closer_to_line[0]);
+     pair<point,point> min_middle_set = make_pair(closer_to_line[1],closer_to_line[0]);
+     
+     for(int i = 0; i < closer_to_line.size(); i++){
+         for(int j = i+1; j < closer_to_line.size(); j++){
+             if(distanceTo(closer_to_line[i],closer_to_line[j]) < min_middle){
+                 min_middle = distanceTo(closer_to_line[i],closer_to_line[j]);
+                 min_middle_set = make_pair(closer_to_line[i],closer_to_line[j]);
+             }
+         }
+     }
+     
+     if(min_middle < min_d){
+         min_d = min_middle;
+         result = min_middle_set;
+     }
+     
+     return result;
+     
+ }
+ 
+ 
+ pair<point, point> divideAndConquerClosestPair(SDL_Plotter& g,vector<point> points){
+     pair<point, point> closestPair;
+     cout << "Runing divide and conquer closest pair" << endl;
+     closestPair = divideAndConquerClosestPair_recurse(points,0,points.size());
+     for(point p : points){
+         p.display(cout);
+         cout << endl;
+     }
+     closestPair.first.setColor(color_rgb(255, 0, 0));
+     closestPair.second.setColor(color_rgb(255, 0, 0));
+     
+     closestPair.first.drawThick(g,5);
+     closestPair.second.drawThick(g,5);
+     return closestPair;
+ }
 
 /**
  * Solves the Closest Pair problem with a Divide and Conquer strategy (with animation)
@@ -509,7 +593,7 @@ int main(int argc, char** argv){
             return 1;
         }
 
-        bool rerunAlgorithm = true;
+        bool rerunAlgorithm = true, update = true;
         bool colored = false;
         int x,y, xd, yd;
         int R,G,B;
@@ -550,7 +634,8 @@ int main(int argc, char** argv){
                         //TODO:: circle them on the plot
 
                     } else if(option == "-divide"){
-                        pair<point, point> closestPair = divideAndConquerClosestPair(points);
+                        drawThickerPoints(points, g);
+                        pair<point, point> closestPair = divideAndConquerClosestPair(g,points);
 
                         //TODO:: circle them on the plot
 
@@ -558,6 +643,7 @@ int main(int argc, char** argv){
                 }
 
                 rerunAlgorithm = false;
+                g.update();
     		}
 
     		if(g.kbhit()){
@@ -570,9 +656,8 @@ int main(int argc, char** argv){
                 points.push_back(point(x, COL_MAX-y));
     			rerunAlgorithm = true;
                 clearScreen(g);
+                g.update();
     		}
-
-    		g.update();
         }
     } else {
         cout << "ERROR: Number of arguments must be 2: [-convex, -closest] [-brute -divide]" << endl;

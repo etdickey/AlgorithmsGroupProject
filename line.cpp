@@ -49,7 +49,7 @@ void line::display(ostream& out){
 }
 
 /**
- * description: Draws a line onto the screen using the SDL_Plotter object
+ * description: Draws a line onto the screen using the SDL_Plotter object from p1 to p2
  * return: void
  * precondition: the SDL_Plotter object is instantiated
  * postcondition: the line ending in the 2 points contained in this class is
@@ -66,27 +66,21 @@ void line::draw(SDL_Plotter& g){
     // this->p2.setColor(color_rgb(255, 0, 0));
     // this->p2.drawThick(g, 5);
     //if both points are the same, won't work
-    double dx= p2.getX()-p1.getX(), dy= p2.getY()-p1.getY(), largerChange;
-    double x=p1.getX(), y=p1.getY();
-    if(p2.getX() < x){
-        x=p2.getX();
-        y=p2.getY();
-    }
+    double dx = p2.getX()-p1.getX(), dy = p2.getY()-p1.getY(), largerChange;
+    double x = p1.getX(), y = p1.getY();
 
-    if(dx>=dy)
-        largerChange=dx;
+    if(fabs(dx) >= fabs(dy))
+        largerChange = fabs(dx);
     else
-        largerChange=dy;
+        largerChange = fabs(dy);
 
     dx/=largerChange;
     dy/=largerChange;
-    x += (dx*largerChange);
-    y += (dy*largerChange);
 
     for(int i=1; i<=largerChange; ++i){
         g.plotPixel(x, g.getRow() - y, color.getR(), color.getG(), color.getB());
-        x-=dx;
-        y-=dy;
+        x+=dx;
+        y+=dy;
     }
 }
 
