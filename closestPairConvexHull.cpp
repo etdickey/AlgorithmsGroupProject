@@ -258,12 +258,31 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
  }
 
 
- pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int left, int right){
+ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int left, int right, SDL_Plotter &g){
+
+     color_rgb c1(200,20,20);
+     color_rgb c2(20,200,20);
+     color_rgb c3(20,20,200);
+     color_rgb white(255,255,255);
+     line todraw;
+
      //right is 1 more than the index that it stops at
      int size = right-left;
      if(size == 2){
+         todraw.setP1(points[left]);
+         todraw.setP2(points[left+1]);
+         todraw.display(cout);
+         todraw.setColor(c3);
+         todraw.draw(g);
+         g.update();
+         g.Sleep(250);
+         todraw.setColor(white);
+         todraw.draw(g);
+         g.update();
+         drawThickerPoints(points, g, 5);
          return make_pair(points[left],points[left+1]);
      }
+
      point middle = points[left+size/2];
 
      //subarray 1: left,left+size/2
@@ -271,12 +290,12 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 
      pair<point,point> result;
 
-     result = divideAndConquerClosestPair_recurse(points,left,left+size/2+1);
+     result = divideAndConquerClosestPair_recurse(points,left,left+size/2+1, g);
      double minLeft = distanceTo(result.first,result.second);
      double min_d = minLeft;
 
      if(right-(left+size/2+1) > 1){
-         pair<point,point> rightone = divideAndConquerClosestPair_recurse(points,left+size/2+1,right);
+         pair<point,point> rightone = divideAndConquerClosestPair_recurse(points,left+size/2+1,right, g);
          double minRight= distanceTo(rightone.first,rightone.second);
 
          if(minRight < min_d){
@@ -288,6 +307,23 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      int middle_index = left+size/2;
 
      double vertical_line_x = points[middle_index].getX() + (points[middle_index+1].getX()-points[middle_index].getX())/2;
+     point todrawP1, todrawP2;
+/*     todrawP1.setX((int)vertical_line_x);
+     todrawP2.setX((int)vertical_line_x);
+     todrawP1.setY(ROW_MAX);
+     todrawP2.setY(0);
+
+     todraw.setP1(todrawP1);
+     todraw.setP2(todrawP2);
+     todraw.setColor(c2);
+     todraw.draw(g);
+     g.update();
+     g.Sleep(250);
+     todraw.setColor(white);
+     todraw.draw(g);
+     g.update();
+     drawThickerPoints(points, g, 5);*/
+
      // = points[left].getX() + (points[right-1].getX()-points[left].getX())/2;
 
      vector<point> closer_to_line;
@@ -296,6 +332,24 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
              closer_to_line.push_back(point);
          }
      }
+
+     todrawP1.setX((int)(vertical_line_x - min_d));
+     todrawP2.setX((int)(vertical_line_x - min_d));
+     todrawP1.setY(ROW_MAX);
+     todrawP2.setY(0);
+     todraw.setP1(todrawP1);
+     todraw.setP2(todrawP2);
+     //todraw.draw(g);
+     g.update();
+     todrawP1.setX((int)vertical_line_x + min_d);
+     todrawP2.setX((int)vertical_line_x + min_d);
+     todrawP1.setY(ROW_MAX);
+     todrawP2.setY(0);
+     todraw.setP1(todrawP1);
+     todraw.setP2(todrawP2);
+     todraw.draw(g);
+     g.update();
+     g.Sleep(2000);
 
      if(closer_to_line.size() < 2){
          return result;
@@ -326,14 +380,19 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 
  pair<point, point> divideAndConquerClosestPair(SDL_Plotter& g,vector<point> points){
      pair<point, point> closestPair;
-     cout << "Runing divide and conquer closest pair" << endl;
-     closestPair = divideAndConquerClosestPair_recurse(points,0,points.size());
+     line todraw;
+     cout << "Running divide and conquer closest pair" << endl;
+     closestPair = divideAndConquerClosestPair_recurse(points,0,points.size(), g);
      for(point p : points){
          p.display(cout);
          cout << endl;
      }
      closestPair.first.setColor(color_rgb(255, 0, 0));
      closestPair.second.setColor(color_rgb(255, 0, 0));
+     todraw.setP1(closestPair.first);
+     todraw.setP2(closestPair.second);
+     todraw.setColor(color_rgb(255, 0, 0));
+     todraw.draw(g);
 
      closestPair.first.drawThick(g,5);
      closestPair.second.drawThick(g,5);
@@ -670,7 +729,7 @@ int main(int argc, char** argv){
     SDL_Plotter g(ROW_MAX,COL_MAX);
 
     vector<point> points;
-    ifstream in("input1.in");
+    ifstream in("input2.in");
     int x, y;
 
     //import data (multiple data sets?)
