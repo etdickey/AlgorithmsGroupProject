@@ -297,7 +297,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      color_rgb c2(20,200,20);
      color_rgb c3(20,20,200);
      color_rgb white(255,255,255);
-     line todraw;
+     line todraw, dplus, dminus;
 
      //right is 1 more than the index that it stops at
      int size = right-left;
@@ -341,7 +341,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 
      double vertical_line_x = points[middle_index].getX() + (points[middle_index+1].getX()-points[middle_index].getX())/2;
      point todrawP1, todrawP2;
-/*     todrawP1.setX((int)vertical_line_x);
+     todrawP1.setX((int)vertical_line_x);
      todrawP2.setX((int)vertical_line_x);
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
@@ -356,7 +356,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      todraw.setColor(white);
      todraw.draw(g);
      g.update();
-     drawThickerPoints(points, g, 5);*/
+     drawThickerPoints(points, g, 5);
 
      // = points[left].getX() + (points[right-1].getX()-points[left].getX())/2;
 
@@ -376,9 +376,9 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      }
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
-     todraw.setP1(todrawP1);
-     todraw.setP2(todrawP2);
-     todraw.draw(g);
+     dminus.setP1(todrawP1);
+     dminus.setP2(todrawP2);
+     dminus.draw(g);
      g.update();
      if(vertical_line_x + min_d <= COL_MAX){
          todrawP1.setX((int)vertical_line_x + min_d);
@@ -389,11 +389,11 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      }
      todrawP1.setY(ROW_MAX);
      todrawP2.setY(0);
-     todraw.setP1(todrawP1);
-     todraw.setP2(todrawP2);
-     todraw.draw(g);
+     dplus.setP1(todrawP1);
+     dplus.setP2(todrawP2);
+     dplus.draw(g);
      g.update();
-     g.Sleep(1000);
+     g.Sleep(500);
 
      if(closer_to_line.size() < 2){
          dplus.setColor(white);
@@ -487,7 +487,11 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
     vector<line> convexHullLines;
     vector<point> convexHull;
     point final;
-    line toAdd;
+    line toAdd, todraw;
+    color_rgb red(200,20,20);
+    color_rgb green(20,200,20);
+    color_rgb blue(20,20,200);
+    color_rgb white(255,255,255);
 
     cout << "\nRunning brute force convex hull on " << points.size() << " points" << endl;
     // for(point p : points){
@@ -503,6 +507,12 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
 
             point pI = points[i];
             point pJ = points[j];
+            todraw.setP1(pI);
+            todraw.setP2(pJ);
+            todraw.setColor(red);
+            todraw.draw(g);
+            g.update();
+            g.Sleep(200);
 
             bool rightSideOfTheLine = true, firstTime = true;
             int sideOfLine;
@@ -533,13 +543,22 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
                     toAdd.setP2(pI);
                     if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
                         convexHullLines.push_back(toAdd);
+                        toAdd.setColor(blue);
+                        toAdd.draw(g);
+                        g.update();
                     }
                 }
                 // if(find(convexHull.begin(), convexHull.end(), pI) != convexHull.end()){
                 //     convexHull.push_back(pI);
                 //     final = pJ;
                 // }
+            }else{
+                todraw.setColor(white);
+                todraw.draw(g);
+                drawThickerPoints(points, g, 5);
+                g.update();
             }
+            drawHullLines(convexHullLines, g);
         }
     }
 
@@ -607,7 +626,7 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
 vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull, SDL_Plotter& g){
     //define helper variables
     line todraw;
-    color_rgb navy(255, 255, 0);
+    color_rgb yellow(255, 255, 0);
     int n1 = leftHull.size(), n2 = rightHull.size();
     int rightmostLeft = 0,//*max_element(leftHull.begin(), leftHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();}),
         leftmostRight = 0;//*min_element(rightHull.begin(), rightHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();});
@@ -646,7 +665,7 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
     // rightHull[upTanRight].display(cout);
     // cout << endl;
     line temp(leftHull[upTanLeft], rightHull[upTanRight]);
-    temp.setColor(navy);
+    temp.setColor(yellow);
     temp.draw(g);
     g.update();
     g.Sleep(1000);
@@ -673,7 +692,7 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
     // rightHull[lowTanRight].display(cout);
     // cout << endl;
     temp = line(leftHull[lowTanLeft], rightHull[lowTanRight]);
-    temp.setColor(navy);
+    temp.setColor(yellow);
     temp.draw(g);
     g.update();
     g.Sleep(1000);
@@ -742,11 +761,13 @@ vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
         drawHull(leftHull, g, color_rgb(255, 0, 0));
         drawHull(rightHull, g, color_rgb(0, 255, 0));
         g.update();
+        g.Sleep(1000);
         //merge
         vector<point> temp = mergeConvexHullDC(leftHull, rightHull, g);
         // cout << "Drawing merged (blue) " << endl;
         drawHull(temp, g, color_rgb(0,0,255));
         g.update();
+        g.Sleep(1000);
         // if(temp.size() == 1){
             // g.Sleep(200000);
         // }
