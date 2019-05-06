@@ -67,31 +67,56 @@ void drawThickerPoints(vector<point> points, SDL_Plotter& g, int thickness = 5){
  * @param points the hull to draw
  * @param g      the plotter to plot onto
  */
-void drawHull(vector<point> points, SDL_Plotter& g){
+void drawHull(vector<point> points, SDL_Plotter& g, color_rgb c = color_rgb(0,0,0)){
+    cout << "Called draw hull with " << points.size() << " points" << endl;
     line temp;
-    point first, second;
+
     for(int i=0;i<points.size();i++){
+        temp.setColor(c);
+
         temp.setP1(points[i]);
         if(i == points.size()-1){
-            second = points[0];
+            temp.setP2(points[0]);
         } else {
             temp.setP2(points[i+1]);
         }
         temp.draw(g);
     }
 }
+/**
+ * Draws the hull passed in
+ * @param lines  the hull to draw
+ * @param g      the plotter to plot onto
+ */
+void drawHullLines(vector<line> lines, SDL_Plotter& g){
+    cout << "Called draw hull with " << lines.size() << " lines" << endl;
+    for(auto i : lines){
+        i.draw(g);
+    }
+}
 
 /**
+ * Returns the direction of the point c according to the line between a and b
  *
  * @param endpointA the first point of the line being tested
  * @param endpointB the second point of the line being tested
  * @param testPoint the point being tested to see what side of the line
  *          it is on
- * @return less than 0 if on the left, greater than 0 if on the right
+ * @return -1 if on the left, 1 if on the right, 0 if on the line
  */
-int whichSideOfLine(point endpointA, point endpointB, point testPoint){
-    return (testPoint.getX() - endpointA.getX()) * (endpointB.getY() - endpointA.getY())
-                - (testPoint.getY() - endpointA.getY()) * (endpointB.getX() - endpointA.getX());
+int direction(point a, point b, point c){
+    if(a == b){
+        return 0;
+    }
+    int result = (b.getY()-a.getY())*(c.getX()-b.getX()) -
+              (c.getY()-b.getY())*(b.getX()-a.getX());
+    if(result == 0){
+        return 0;
+    }
+    if(result > 0){
+        return 1;
+    }
+    return -1;
 }
 
 //////////////////////////////////////////////////////////////////////////////// CP-BF
@@ -338,14 +363,17 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
  * @param  points the set of points to solve the problem for.
  * @return        the convex hull surrounding all the points
  */
-vector<point> brute_forceConvexHull(vector<point> points){
+vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
+    vector<line> convexHullLines;
     vector<point> convexHull;
     point final;
-    cout << "Running brute force convex hull" << endl;
+    line toAdd;
+
+    cout << "\nRunning brute force convex hull on " << points.size() << " points" << endl;
     for(point p : points){
         p.display(cout);
-        cout << endl;
     }
+    cout << endl;
 
     for(int i=0; i < points.size(); i++){
         for(int j=0; j < points.size(); j++){
@@ -356,41 +384,90 @@ vector<point> brute_forceConvexHull(vector<point> points){
             point pI = points[i];
             point pJ = points[j];
 
-            bool rightSideOfTheLine = true;
-            for(int k=0; k < points.size(); k++){
+            bool rightSideOfTheLine = true, firstTime = true;
+            int sideOfLine;
+            for(int k=0; k < points.size(); k++){//see if all the other points are on the other side of the line
                 if(k == i || k == j){
                     continue;
                 }
 
-                int position = whichSideOfLine(pI, pJ, points[k]);
-                if(position < 0){
+                int position = direction(pI, pJ, points[k]);
+                if(firstTime){
+                    sideOfLine = position;
+                    firstTime = false;
+                } else if(!(position == 0 || sideOfLine == position)){//if it's not on the line or on the same side of the line as before, stop
                     rightSideOfTheLine = false;
                     break;
                 }
+                // if(position < 0){//this needs to be just if they are all on one side of the line, not necessarily on the right side
+                //     rightSideOfTheLine = false;
+                //     break;
+                // }
             }
 
             if(rightSideOfTheLine){
-                if(find(convexHull.begin(), convexHull.end(), pI) != convexHull.end()){
-                    convexHull.push_back(pI);
-                    final = pJ;
+                toAdd.setP1(pI);
+                toAdd.setP2(pJ);
+                if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
+                    toAdd.setP1(pJ);
+                    toAdd.setP2(pI);
+                    if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
+                        convexHullLines.push_back(toAdd);
+                    }
                 }
+                // if(find(convexHull.begin(), convexHull.end(), pI) != convexHull.end()){
+                //     convexHull.push_back(pI);
+                //     final = pJ;
+                // }
             }
         }
     }
 
-    convexHull.push_back(final); // add last point to hull
+    // convexHull.push_back(final); // add last point to hull
 
-    for(point p : convexHull){
-        p.display(cout);
-        cout << endl;
+    // cout << "Convex hull: " << endl;
+    // for(auto p : convexHullLines){
+    //     p.display(cout);
+    // }
+    drawHullLines(convexHullLines, g);
+
+    //return them in cyclic order
+    convexHull.clear();
+    point prevPoint = convexHullLines.front().getP2();
+    point curr;
+    vector<line> tempHull(convexHullLines);
+
+    while(tempHull.size() > 0){//repeat until all lines are accounted for
+        //start with the second point of the last line
+        curr = prevPoint;
+        //find the other line with that point and add the other point in that
+        for(int i=0;i<tempHull.size();i++){
+            if(tempHull[i].getP1() == curr){
+                //add the other to the set
+                convexHull.push_back(tempHull[i].getP2());
+                prevPoint = tempHull[i].getP2();
+                tempHull.erase(tempHull.begin() + i);
+                break;
+            } else if(tempHull[i].getP2() == curr){
+                //add the other to the set and remove it from the remaining ones
+                convexHull.push_back(tempHull[i].getP1());
+                prevPoint = tempHull[i].getP1();
+                tempHull.erase(tempHull.begin() + i);
+                break;
+            }
+        }
     }
-
+    cout << "Convex hull: " << endl;
+    for(auto i : convexHull){
+        i.display(cout);
+    }
+    cout << endl << endl;
 
     return convexHull;
 }
 
 /**
- * Solves the Convex Hull problem with the brute force solution (with animatino)
+ * Solves the Convex Hull problem with the brute force solution (with animation)
  *
  * @param  points the set of points to solve the problem for.
  * @return        the convex hull surrounding all the points
@@ -402,18 +479,6 @@ vector<point> brute_forceConvexHull(vector<point> points){
 // }
 
 //////////////////////////////////////////////////////////////////////////////// CH-DC
-int direction(point a, point b, point c){
-    int result = (b.getY()-a.getY())*(c.getX()-b.getX()) -
-                 (c.getY()-b.getY())*(b.getX()-a.getX());
-    if(result == 0){
-        return 0;
-    }
-    if(result > 0){
-        return 1;
-    }
-    return -1;
-}
-
 vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull){
     //define helper variables
     int n1 = leftHull.size(), n2 = rightHull.size();
@@ -487,7 +552,7 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull)
  * @param  points the points to solve
  * @return        the convex hull of the points
  */
-vector<point> convexHullRecurse(vector<point> points){
+vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
     //it is much easier and virtually the same efficiency to brute force when the hull is 5 or less points
     if(points.size() < 6){/////////////////////////////////////////////////////////here try just using 3 and returning that as the convex hull...
         if(points.size() <= 3){///////////////////////////////////////////////////todo:: test my functions dumbo
@@ -495,7 +560,7 @@ vector<point> convexHullRecurse(vector<point> points){
         }
         //TODO:: brute force solution
         cout << "Running brute force" << endl;
-        return brute_forceConvexHull(points);
+        return brute_forceConvexHull(points, g);
     } else {
         vector<point> left, right;
         //split the problem
@@ -507,15 +572,19 @@ vector<point> convexHullRecurse(vector<point> points){
         }
 
         //recurse
-        vector<point> leftHull = convexHullRecurse(left),
-                      rightHull = convexHullRecurse(right);
+        vector<point> leftHull = convexHullRecurse(left, g),
+                      rightHull = convexHullRecurse(right, g);
         cout << "Left hull: ";
         for(point p : leftHull){ p.display(cout); cout << " "; }
         cout << endl;
         cout << "Right hull: ";
         for(point p : rightHull){ p.display(cout); cout << " "; }
         cout << endl;
+        cout << "Drawing left hull (red) and right hull (blue)" << endl;
 
+        drawHull(leftHull, g, color_rgb(255, 0, 0));
+        drawHull(rightHull, g, color_rgb(255, 0, 0));
+        g.update();
         //merge
         return mergeConvexHullDC(leftHull, rightHull);
     }
@@ -545,8 +614,8 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, b
     cout << "Drawing points" << endl;
     drawThickerPoints(points, g);
 
-    convexHull = convexHullRecurse(points);
-    drawHull(convexHull, g);
+    convexHull = convexHullRecurse(points, g);
+    drawHull(convexHull, g, color_rgb(255, 0, 0));
 
     return convexHull;
 }
@@ -625,7 +694,8 @@ int main(int argc, char** argv){
                     if(option == "-brute"){
                         //call brute force convex hull, it does all the work
                         drawThickerPoints(points, g);
-                        drawHull(brute_forceConvexHull(points), g);
+                        brute_forceConvexHull(points, g);
+                        // drawHull(brute_forceConvexHull(points, g), g);
                     } else if(option == "-divide"){
                         divideAndConquerConvexHull(points, g);
                     }
