@@ -216,7 +216,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
  * @return the closest pair of points
  */
  double distanceTo(point &thisone, point& other){
-     return sqrt((thisone.getX()-other.getX())^2+(thisone.getY()-other.getY())^2);
+     return sqrt((thisone.getX()-other.getX())*(thisone.getX()-other.getX())+(thisone.getY()-other.getY())*(thisone.getY()-other.getY()));
  }
  
  bool sort_by_x(point& a, point& b){
@@ -248,7 +248,6 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
      if(right-(left+size/2+1) > 1){
          pair<point,point> rightone = divideAndConquerClosestPair_recurse(points,left+size/2+1,right);
          double minRight= distanceTo(rightone.first,rightone.second);
-         
          
          if(minRight < min_d){
              min_d = minRight;
@@ -290,12 +289,12 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
          result = min_middle_set;
      }
      
-     return result;;
+     return result;
      
  }
  
  
- pair<point, point> divideAndConquerClosestPair(vector<point> points){
+ pair<point, point> divideAndConquerClosestPair(SDL_Plotter& g,vector<point> points){
      pair<point, point> closestPair;
      cout << "Runing divide and conquer closest pair" << endl;
      closestPair = divideAndConquerClosestPair_recurse(points,0,points.size());
@@ -303,6 +302,11 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
          p.display(cout);
          cout << endl;
      }
+     closestPair.first.setColor(color_rgb(255, 0, 0));
+     closestPair.second.setColor(color_rgb(255, 0, 0));
+     
+     closestPair.first.drawThick(g,5);
+     closestPair.second.drawThick(g,5);
      return closestPair;
  }
 
@@ -625,7 +629,8 @@ int main(int argc, char** argv){
                         //TODO:: circle them on the plot
 
                     } else if(option == "-divide"){
-                        pair<point, point> closestPair = divideAndConquerClosestPair(points);
+                        drawThickerPoints(points, g);
+                        pair<point, point> closestPair = divideAndConquerClosestPair(g,points);
 
                         //TODO:: circle them on the plot
 
