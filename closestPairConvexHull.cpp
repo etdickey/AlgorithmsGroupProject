@@ -4,7 +4,6 @@
 #include <cmath>
 #include <algorithm>
 
-
 #include "SDL_Plotter.h"
 #include "point.h"
 #include "line.h"
@@ -117,6 +116,24 @@ int direction(point a, point b, point c){
     return -1;
 }
 
+/**
+ * Returns if c is in between a and b
+ */
+bool inBetween(point a, point b, point c){
+    //if in between 2 points, break
+    if(a.getX() == b.getX() && a.getX() == c.getX()){//if the Xs are the same
+        if(a.getY() <= c.getY() && c.getY() <= b.getY() ||
+            b.getY() <= c.getY() && c.getY() <= a.getY()){//if it's in between the ys
+            return true;
+        }//else it's outside of the bounds and add the line
+    } else if(a.getY() == b.getY() && a.getY() == c.getY()) {//garunteed one of the two coordinates is the same, so Y is here
+        if(a.getX() <= c.getX() && c.getX() <= b.getX() ||
+            b.getX() <= c.getY() && c.getX() <= a.getX()){//if it's in between the xs
+            return true;
+        }//else it's outside of the bounds and add the line
+    }
+    return false;
+}
 //////////////////////////////////////////////////////////////////////////////// CP-BF
 /**
  * Solves the CLosest Pair problem with the brute force solution
@@ -475,103 +492,9 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
 // }
 
 //////////////////////////////////////////////////////////////////////////////// CH-BF
-/**
- * Solves the Convex Hull problem with the brute force solution
- *
- * @author Mackenna Semeyn
- *
- * @param  points the set of points to solve the problem for.
- * @return        the convex hull surrounding all the points
- */
-vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
-    vector<line> convexHullLines;
+/** convert line hull to point hull */
+vector<point> convertLineHullToPoint(vector<line> convexHullLines){
     vector<point> convexHull;
-    point final;
-    line toAdd, todraw;
-    color_rgb red(200,20,20);
-    color_rgb green(20,200,20);
-    color_rgb blue(20,20,200);
-    color_rgb white(255,255,255);
-
-    cout << "\nRunning brute force convex hull on " << points.size() << " points" << endl;
-    // for(point p : points){
-    //     p.display(cout);
-    // }
-    // cout << endl;
-
-    for(int i=0; i < points.size(); i++){
-        for(int j=0; j < points.size(); j++){
-            if(i == j){
-                continue;   // go to next pair of points
-            }
-
-            point pI = points[i];
-            point pJ = points[j];
-            todraw.setP1(pI);
-            todraw.setP2(pJ);
-            todraw.setColor(red);
-            todraw.draw(g);
-            g.update();
-            g.Sleep(200);
-
-            bool rightSideOfTheLine = true, firstTime = true;
-            int sideOfLine;
-            for(int k=0; k < points.size(); k++){//see if all the other points are on the other side of the line
-                if(k == i || k == j){
-                    continue;
-                }
-
-                int position = direction(pI, pJ, points[k]);
-                if(firstTime){
-                    sideOfLine = position;
-                    firstTime = false;
-                } else if(!(position == 0 || sideOfLine == position)){//if it's not on the line or on the same side of the line as before, stop
-                    rightSideOfTheLine = false;
-                    break;
-                }
-                // if(position < 0){//this needs to be just if they are all on one side of the line, not necessarily on the right side
-                //     rightSideOfTheLine = false;
-                //     break;
-                // }
-            }
-
-            if(rightSideOfTheLine){
-                toAdd.setP1(pI);
-                toAdd.setP2(pJ);
-                if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
-                    toAdd.setP1(pJ);
-                    toAdd.setP2(pI);
-                    if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
-                        convexHullLines.push_back(toAdd);
-                        toAdd.setColor(blue);
-                        toAdd.draw(g);
-                        g.update();
-                    }
-                }
-                // if(find(convexHull.begin(), convexHull.end(), pI) != convexHull.end()){
-                //     convexHull.push_back(pI);
-                //     final = pJ;
-                // }
-            }else{
-                todraw.setColor(white);
-                todraw.draw(g);
-                drawThickerPoints(points, g, 5);
-                g.update();
-            }
-            drawHullLines(convexHullLines, g);
-        }
-    }
-
-    // convexHull.push_back(final); // add last point to hull
-
-    // cout << "Convex hull: " << endl;
-    // for(auto p : convexHullLines){
-    //     p.display(cout);
-    // }
-    drawHullLines(convexHullLines, g);
-
-    //return them in cyclic order
-    convexHull.clear();
     point prevPoint = convexHullLines.front().getP2();
     point curr;
     vector<line> tempHull(convexHullLines);
@@ -601,6 +524,150 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
         reverse(convexHull.begin(), convexHull.end());
     }
 
+    return convexHull;
+}
+
+/**
+ * Solves the Convex Hull problem with the brute force solution
+ *
+ * @author Mackenna Semeyn
+ *
+ * @param  points the set of points to solve the problem for.
+ * @return        the convex hull surrounding all the points
+ */
+vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g, int speed = 20){
+    vector<line> convexHullLines;
+    vector<point> convexHull;
+    point final;
+    line toAdd, todraw;
+    color_rgb red(200,20,20);
+    color_rgb green(20,200,20);
+    color_rgb blue(20,20,200);
+    color_rgb white(255,255,255);
+
+    cout << "\nRunning brute force convex hull on " << points.size() << " points" << endl;
+    // for(point p : points){
+    //     p.display(cout);
+    // }
+    // cout << endl;
+
+    //special case:: of all the points are in a line, return all of them in cyclic order
+    // bool allSame = true;
+    // int currentTest = points.front().getX();
+    // for(int i=0;i<points.size() && allSame;i++){
+    //     if(points[i].getX() != currentTest){
+    //         allSame = false;
+    //         break;
+    //     }
+    // }
+    // if(allSame){
+    //     //return in cyclic order
+    //     sort(points.begin(), points.end());//sorts by x then by y
+    //     drawHull(points, g, color_rgb(0, 0, 255));
+    //     return points;
+    // }
+    // allSame = true;
+    // currentTest = points.front().getY();
+    // for(int i=0;i<points.size() && allSame;i++){
+    //     if(points[i].getY() != currentTest){
+    //         allSame = false;
+    //         break;
+    //     }
+    // }
+    // if(allSame){
+    //     //return in cyclic order
+    //     sort(points.begin(), points.end());//sorts by x then by y
+    //     drawHull(points, g, color_rgb(0, 0, 255));
+    //     return points;
+    // }
+
+    for(int i=0; i < points.size(); i++){
+        for(int j=0; j < points.size(); j++){
+            if(i == j){
+                continue;   // go to next pair of points
+            }
+
+            point pI = points[i];
+            point pJ = points[j];
+            todraw.setP1(pI);
+            todraw.setP2(pJ);
+            todraw.setColor(red);
+            todraw.draw(g);
+            g.update();
+            g.Sleep(speed);
+
+            bool rightSideOfTheLine = true, firstTime = true;
+            int sideOfLine;
+            for(int k=0; k < points.size(); k++){//see if all the other points are on the other side of the line
+                if(k == i || k == j){
+                    continue;
+                }
+                int position = direction(pI, pJ, points[k]);
+                if(firstTime){
+                    sideOfLine = position;
+                    firstTime = false;
+                } else if(!(position == 0 || sideOfLine == position)){//if it's not on the line or on the same side of the line as before, stop
+                    rightSideOfTheLine = false;
+                    break;
+                }
+                // else if(sideOfLine != position){//if it's not on the line or on the same side of the line as before, stop
+                //     if(position == 0){
+                //         //if in between 2 points, break
+                //         if(pI.getX() == pJ.getX() && pI.getX() == points[k].getX()){//if the Xs are the same
+                //             if(pI.getY() <= points[k].getY() && points[k].getY() <= pJ.getY() ||
+                //                pJ.getY() <= points[k].getY() && points[k].getY() <= pI.getY()){//if it's in between the ys
+                //                rightSideOfTheLine = false;
+                //                break;
+                //            }//else it's outside of the bounds and add the line
+                //        } else {//garunteed one of the two coordinates is the same, so Y is here
+                //            if(pI.getX() <= points[k].getX() && points[k].getX() <= pJ.getX() ||
+                //               pJ.getX() <= points[k].getY() && points[k].getX() <= pI.getX()){//if it's in between the xs
+                //               rightSideOfTheLine = false;
+                //               break;
+                //           }//else it's outside of the bounds and add the line
+                //        }
+                //     } else {//not on the right side of line
+                //         rightSideOfTheLine = false;
+                //         break;
+                //     }
+                // }
+            }
+
+            if(rightSideOfTheLine){
+                toAdd.setP1(pI);
+                toAdd.setP2(pJ);
+                if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
+                    toAdd.setP1(pJ);
+                    toAdd.setP2(pI);
+                    if(find(convexHullLines.begin(), convexHullLines.end(), toAdd) == convexHullLines.end()){
+                        convexHullLines.push_back(toAdd);
+                        toAdd.setColor(blue);
+                        toAdd.draw(g);
+                        g.update();
+                    }
+                }
+            }else{
+                todraw.setColor(white);
+                todraw.draw(g);
+                drawThickerPoints(points, g, 5);
+                g.update();
+            }
+            drawHullLines(convexHullLines, g);
+        }
+
+        //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+        if(g.kbhit()){
+            g.getKey();
+        }
+    }
+
+    //draw the convex hull
+    drawHullLines(convexHullLines, g);
+
+    //return them in cyclic order
+    convexHull.clear();
+    convexHull = convertLineHullToPoint(convexHullLines);
+
     cout << "Convex hull: " << endl;
     for(auto i : convexHull){
         i.display(cout);
@@ -623,10 +690,10 @@ vector<point> brute_forceConvexHull(vector<point> points, SDL_Plotter& g){
 // }
 
 //////////////////////////////////////////////////////////////////////////////// CH-DC
-vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull, SDL_Plotter& g){
+vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull, SDL_Plotter& g, int speed = 100){
     //define helper variables
     line todraw;
-    color_rgb yellow(255, 255, 0);
+    color_rgb yellow(255, 255, 0), pink(255, 0, 255);
     int n1 = leftHull.size(), n2 = rightHull.size();
     int rightmostLeft = 0,//*max_element(leftHull.begin(), leftHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();}),
         leftmostRight = 0;//*min_element(rightHull.begin(), rightHull.end(), [](point& p1, point& p2) {return p1.getX() < p2.getX();});
@@ -644,58 +711,102 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
         }
     }
 
+    // cout << "Left hull: ";
+    // for(auto i : leftHull){ i.display(cout); cout << " "; } cout << endl;
+    // cout << "Right hull: ";
+    // for(auto i : rightHull){ i.display(cout); cout << " "; } cout << endl;
+
+    // cout << "Pushing beams up" << endl;
     //push the beams up to the top -- move right most on left upwards and see if it makes a left turn
-    int upTanLeft = rightmostLeft, upTanRight = leftmostRight;
+    int upTanLeft = rightmostLeft, upTanRight = leftmostRight, position;
     bool done = false;
     while (!done) {// finding the upper tangent
         done = true;
+
         //move along the circle in ccw direction
-        while (direction(rightHull[upTanRight], leftHull[upTanLeft], leftHull[(upTanLeft+1)%n1]) >=0) {
+        position = direction(rightHull[upTanRight], leftHull[upTanLeft], leftHull[(upTanLeft+1)%n1]);
+        while (position >=0) {
+            // if(position == 0){//if it's on the line
+            //     if(inBetween(rightHull[upTanRight], leftHull[upTanLeft], leftHull[(upTanLeft+1)%n1])){
+            //         //don't move on
+            //         break;
+            //     }
+            // }
             upTanLeft = (upTanLeft + 1) % n1;
+            position = direction(rightHull[upTanRight], leftHull[upTanLeft], leftHull[(upTanLeft+1)%n1]);
         }
+
         //move along the right convex hull in cw direction
-        while (direction(leftHull[upTanLeft], rightHull[upTanRight], rightHull[(n2+upTanRight-1)%n2]) <=0) {
+        position = direction(leftHull[upTanLeft], rightHull[upTanRight], rightHull[(n2+upTanRight-1)%n2]);
+        while (position <=0) {
+            // if(position == 0){
+            //     if(inBetween(leftHull[upTanLeft], rightHull[upTanRight], rightHull[(n2+upTanRight-1)%n2])){
+            //         //don't move on
+            //         break;
+            //     }
+            // }
             upTanRight = (n2+upTanRight-1)%n2;
             done = false;
+            position = direction(leftHull[upTanLeft], rightHull[upTanRight], rightHull[(n2+upTanRight-1)%n2]);
         }
     }
+    // cout << "done pushing beams up" << endl;
     // cout << "Upper tangent: ";
     // leftHull[upTanLeft].display(cout);
     // cout << " and ";
     // rightHull[upTanRight].display(cout);
     // cout << endl;
     line temp(leftHull[upTanLeft], rightHull[upTanRight]);
-    temp.setColor(yellow);
+    temp.setColor(pink);
     temp.draw(g);
     g.update();
-    g.Sleep(1000);
+    g.Sleep(speed);
 
-
+    // cout << "Pushing beams down" << endl;
     //push beam to the bottom -- right most on left down and see if it makes a right turn
     int lowTanLeft = rightmostLeft, lowTanRight = leftmostRight;
     done = false;
     while (!done) {//finding the lower tangent
         done = true;
+
         //move right hull down in ccw direction
-        while (direction(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2]) >= 0) {
+        position = direction(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2]);
+        while (position >= 0) {
+            // if(position == 0){
+            //     if(inBetween(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2])){
+            //         //don't move on
+            //         break;
+            //     }
+            // }
             lowTanRight = (lowTanRight+1)%n2;
+            position = direction(leftHull[lowTanLeft], rightHull[lowTanRight], rightHull[(lowTanRight+1)%n2]);
         }
+
         //move left hull down in cw direction
-        while (direction(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1]) <= 0) {
+        position = direction(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1]);
+        while (position <= 0) {
+            // if(position == 0){
+            //     if(inBetween(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1])){
+            //         //don't move on
+            //         break;
+            //     }
+            // }
             lowTanLeft = (n1+lowTanLeft-1)%n1;
+            position = direction(rightHull[lowTanRight], leftHull[lowTanLeft], leftHull[(n1+lowTanLeft-1)%n1]);
             done = false;
         }
     }
+    // cout << "done pushing beams down" << endl;
     // cout << "Lower tangent: ";
     // leftHull[lowTanLeft].display(cout);
     // cout << " and ";
     // rightHull[lowTanRight].display(cout);
     // cout << endl;
     temp = line(leftHull[lowTanLeft], rightHull[lowTanRight]);
-    temp.setColor(yellow);
+    temp.setColor(pink);
     temp.draw(g);
     g.update();
-    g.Sleep(1000);
+    g.Sleep(speed*5);
 
 
     //go from bottom index
@@ -712,6 +823,10 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
     }
     merged.push_back(rightHull[upTanRight]);
 
+    //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+    if(g.kbhit()){
+        g.getKey();
+    }
     return merged;
 }
 
@@ -723,7 +838,22 @@ vector<point> mergeConvexHullDC(vector<point> leftHull, vector<point> rightHull,
  * @param  points the points to solve
  * @return        the convex hull of the points
  */
-vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
+vector<point> convexHullRecurse(const vector<point>& allPoints, vector<point> points, SDL_Plotter& g, int speed = 100){
+    // int side = points.front().getX();
+    // bool sameSide = true;
+    // for(int i=0;i<points.size() && sameSide;i++){
+    //     if(sameSide && points[i].getX() != side){
+    //         sameSide = false;
+    //     }
+    // }
+    // if(sameSide){
+    //     sort(points.begin(), points.end());
+    //     vector<point> toReturn;
+    //     toReturn.push_back(points.front());
+    //     toReturn.push_back(points.back());
+    //     return toReturn;
+    // }
+
     //it is much easier and virtually the same efficiency to brute force when the hull is 5 or less points
     if(points.size() < 6){
         if(points.size() <= 3){
@@ -735,20 +865,69 @@ vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
         }
 
         // cout << "Running brute force with " << points.size() << " points" << endl;
-        return brute_forceConvexHull(points, g);
+        return brute_forceConvexHull(points, g, 0);
     } else {
         vector<point> left, right;
-        //split the problem
+        // bool rightSameSide, leftSameSide;
+        //
+        // //split the problem
+        // //if all the points are on a line, just return top and bottom point
+        // side = points.front().getX();
+        // sameSide = true;
+        // for(int i=0;i<points.size() && sameSide;i++){
+        //     if(sameSide && points[i].getX() != side){
+        //         sameSide = false;
+        //     }
+        // }
+        // if(sameSide){
+        //     sort(points.begin(), points.end());
+        //     vector<point> toReturn;
+        //     toReturn.push_back(points.front());
+        //     toReturn.push_back(points.back());
+        //     return toReturn;
+        // }
+
+        //left
+        // side = points.front().getX();
+        // leftSameSide = true;
         for(int i=0;i<points.size()/2;i++){
+            // if(leftSameSide && points[i].getX() != side){
+            //     leftSameSide = false;
+            // }
             left.push_back(points[i]);
         }
+        //right
+        // side = points[points.size()/2].getX();
+        // rightSameSide = true;
         for(int i=points.size()/2;i<points.size();i++){
+            // if(rightSameSide && points[i].getX() != side){
+            //     rightSameSide = false;
+            // }
             right.push_back(points[i]);
         }
 
+        // cout << "making left hull and right hull" << endl;
         //recurse
-        vector<point> leftHull = convexHullRecurse(left, g),
-                      rightHull = convexHullRecurse(right, g);
+        vector<point> leftHull, rightHull;
+        // if(leftSameSide){
+        //     //choose the top and bottom points as the hull
+        //     sort(left.begin(), left.end());
+        //     leftHull.push_back(left.front());
+        //     leftHull.push_back(left.back());
+        // } else {
+            leftHull = convexHullRecurse(allPoints, left, g);
+        // }
+        //
+        // if(rightSameSide){
+        //     //choose top and bottom points as the hull
+        //     sort(right.begin(), right.end());
+        //     rightHull.push_back(right.front());
+        //     rightHull.push_back(right.back());
+        // } else {
+            rightHull = convexHullRecurse(allPoints, right, g);
+        // }
+
+        // cout << "done making left hull and right hull" << endl;
         // cout << "Left hull: ";
         // for(point p : leftHull){ p.display(cout); cout << " "; }
         // cout << endl;
@@ -757,20 +936,21 @@ vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
         // cout << endl;
         // cout << "Drawing left hull (red, " << leftHull.size() << ") and right hull (green " << rightHull.size() << ")" << endl;
         clearScreen(g);
-        drawThickerPoints(points, g);
+        drawThickerPoints(allPoints, g);
         drawHull(leftHull, g, color_rgb(255, 0, 0));
         drawHull(rightHull, g, color_rgb(0, 255, 0));
         g.update();
-        g.Sleep(1000);
+        g.Sleep(speed);
         //merge
-        vector<point> temp = mergeConvexHullDC(leftHull, rightHull, g);
+        vector<point> temp = mergeConvexHullDC(leftHull, rightHull, g, speed);
         // cout << "Drawing merged (blue) " << endl;
+        g.update();
         drawHull(temp, g, color_rgb(0,0,255));
         g.update();
-        g.Sleep(1000);
-        // if(temp.size() == 1){
-            // g.Sleep(200000);
-        // }
+        // g.Sleep(1000);
+        if(temp.size() >= 200){
+            g.Sleep(speed*10);
+        }
         return temp;
     }
 }
@@ -785,17 +965,41 @@ vector<point> convexHullRecurse(vector<point> points, SDL_Plotter& g){
  */
 vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, bool runAnimation = true){
     cout << "Runing divide and conquer convex hull" << endl;
-    vector<point> convexHull;
+    vector<point> convexHull, original(points);
     sort(points.begin(), points.end());
     // for(point p : points){
     //     p.display(cout);
     //     cout << endl;
     // }
+    //if there are any points that are on top of each other, reduce them down to the first and the last
+    bool done = false;
+    int index;
+    while(!done){
+        done = true;
+        for(int i=0;i<points.size()-2 && done;i++){
+            if(points[i].getX() == points[i+1].getX() && points[i].getX() == points[i+2].getX()){//find trios of points
+                done = false;
+                index = i;
+            }
+        }
+        if(!done){
+            //find them and reduce them
+            int beg = index, end;
+            while(index < points.size()-1 && points[index].getX() == points[index+1].getX()){
+                index++;
+            }
+            end = index;
+            // cout << "Erasing from element " << beg << " to element " << end << endl;
+            points.erase(points.begin()+beg+1, points.begin()+end);
+            // cout << "Erasing complete" << endl;
+        }
+    }
 
     // cout << "Drawing points" << endl;
-    drawThickerPoints(points, g);
+    drawThickerPoints(original, g);
 
-    convexHull = convexHullRecurse(points, g);
+    convexHull = convexHullRecurse(original, points, g);
+    drawThickerPoints(original, g);
     drawHull(convexHull, g, color_rgb(0, 0, 255));
 
     return convexHull;
@@ -819,7 +1023,7 @@ int main(int argc, char** argv){
     SDL_Plotter g(ROW_MAX,COL_MAX);
 
     vector<point> points;
-    ifstream in("input2.in");
+    ifstream in("inputThicc.in");
     int x, y;
 
     //import data (multiple data sets?)
@@ -850,27 +1054,8 @@ int main(int argc, char** argv){
         int x,y, xd, yd;
         int R,G,B;
 
-        while (!g.getQuit())
-        {
-    		if(rerunAlgorithm){
-                //todo: run the selected algorithm and animate it
-        		// x = rand()%g.getCol();
-    			// y = rand()%g.getRow();
-    			// R = rand()%256;
-    			// G = rand()%256;
-    			// B = rand()%256;
-    			// for(xd = 0; xd < 10 && x + xd < g.getCol(); xd++ ){
-    			// 	for(yd = 0; yd < 10 && y + yd < g.getRow(); yd++ ){
-    			// 		if(colored){
-    			// 			g.plotPixel( x + xd, y + yd, R, G, B);
-    			// 		}
-    			// 		else{
-    			// 		    g.plotPixel( x + xd, y + yd, 0, G, 0);
-    			// 		}
-                //
-    			// 	}
-    			// }
-
+        while (!g.getQuit()) {
+    		if(rerunAlgorithm) {
                 if(algo == "-convex"){
                     if(option == "-brute"){
                         //call brute force convex hull, it does all the work
@@ -916,8 +1101,6 @@ int main(int argc, char** argv){
         cout << "ERROR: Number of arguments must be 2: [-convex, -closest] [-brute -divide]" << endl;
         return 1;
     }
-
-
 
     return 0;
 }
