@@ -226,11 +226,11 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                 // testingLine.display(cout);
                 // cout << endl;
                 g.update();
-                g.Sleep(500);
+                g.Sleep(250);
                 if(newDist < minDist){
                     if(i != j){
                         closestLine.draw(g);
-                        g.Sleep(500);
+                        g.Sleep(250);
                         minDist = newDist;
                         points[old1].setColor(c3);
                         points[old2].setColor(c3);
@@ -265,7 +265,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                         closestLine.setColor(c1);
                         closestLine.draw(g);
                         g.update();
-                        g.Sleep(500);
+                        g.Sleep(250);
                     }
                 }
                 drawThickerPoints(points, g);
@@ -324,22 +324,25 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     color_rgb c2(20,200,20);
     color_rgb c3(20,20,200);
     color_rgb white(255,255,255);
-    line todraw, dplus, dminus;
+    line todraw, dplus, dminus, currentCP;
 
     //right is 1 more than the index that it stops at
     int size = right-left;
     if(size == 2){
-        todraw.setP1(points[left]);
-        todraw.setP2(points[left+1]);
-        todraw.display(cout);
-        todraw.setColor(c3);
-        todraw.draw(g);
+        currentCP.setP1(points[left]);
+        currentCP.setP2(points[left+1]);
+        currentCP.display(cout);
+        currentCP.setColor(c3);
+        currentCP.draw(g);
         g.update();
-        g.Sleep(500);
-        todraw.setColor(white);
-        todraw.draw(g);
+        g.Sleep(1000);
+
+        currentCP.setColor(white);
+        currentCP.draw(g);
         g.update();
+
         drawThickerPoints(points, g, 5);
+        //isDrawn = true;
         return make_pair(points[left],points[left+1]);
     }
 
@@ -378,7 +381,7 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     todraw.setColor(c2);
     todraw.draw(g);
     g.update();
-    g.Sleep(250);
+    g.Sleep(500);
 
     todraw.setColor(white);
     todraw.draw(g);
@@ -410,7 +413,7 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     if(vertical_line_x + min_d <= COL_MAX){
         todrawP1.setX((int)vertical_line_x + min_d);
         todrawP2.setX((int)vertical_line_x + min_d);
-    }else{
+    } else {
         todrawP1.setX(COL_MAX);
         todrawP2.setX(COL_MAX);
     }
@@ -419,6 +422,7 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     dplus.setP1(todrawP1);
     dplus.setP2(todrawP2);
     dplus.draw(g);
+
     g.update();
     g.Sleep(500);
 
@@ -460,7 +464,6 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     todraw.draw(g);
     drawThickerPoints(points, g, 5);
     g.update();
-
 
     return result;
  }
