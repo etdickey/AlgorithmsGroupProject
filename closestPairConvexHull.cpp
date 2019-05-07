@@ -143,7 +143,7 @@ bool inBetween(point a, point b, point c){
  * @param points the points to solve the problem
  * @return the closest pair of points
  */
-pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
+pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g, int speed = 100){
     pair<point, point> closestPair;// = make_pair(point(0,0), point(0,0));
     line testingLine;
     line closestLine;
@@ -157,13 +157,13 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
     testingLine.setColor(c2);
     closestLine.setColor(c1);
     // cout << "Runing brute force closest pair" << endl;
-    for(point p : points){
-        p.display(cout);
-        p.setColor(c3);
-        p.drawThick(g, 5);
+    // for(point p : points){
+    //     p.display(cout);
+    //     p.setColor(c3);
+    //     p.drawThick(g, 5);
+    //     cout << endl;
+    // }
 
-        cout << endl;
-    }
     for(int i = 0; i < points.size(); i++){
         points[i].drawThick(g, 5);
     }
@@ -205,6 +205,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                     // whiteLine.getP2().setColor(black);
                     //g.update();
                 }
+
                 testingLine.setP1(points[i]);
                 testingLine.setP2(points[j]);
 
@@ -223,14 +224,15 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                 }
 
                 testingLine.draw(g);
+                closestLine.draw(g);
                 // testingLine.display(cout);
                 // cout << endl;
                 g.update();
-                g.Sleep(250);
+                g.Sleep(speed);
                 if(newDist < minDist){
                     if(i != j){
                         closestLine.draw(g);
-                        g.Sleep(250);
+                        g.Sleep(speed);
                         minDist = newDist;
                         points[old1].setColor(c3);
                         points[old2].setColor(c3);
@@ -265,7 +267,7 @@ pair<point, point> brute_forceClosestPair(vector<point> points, SDL_Plotter& g){
                         closestLine.setColor(c1);
                         closestLine.draw(g);
                         g.update();
-                        g.Sleep(250);
+                        g.Sleep(speed);
                     }
                 }
                 drawThickerPoints(points, g);
@@ -318,8 +320,7 @@ bool sort_by_y(point& a, point& b){
  * @param g      The SDL_Plotter instance to solve for
  * @return       The closest pair in [left, right]
  */
-pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int left, int right, SDL_Plotter &g){
-
+pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int left, int right, SDL_Plotter &g, int speed = 100){
     color_rgb c1(200,20,20);
     color_rgb c2(20,200,20);
     color_rgb c3(20,20,200);
@@ -331,11 +332,16 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     if(size == 2){
         currentCP.setP1(points[left]);
         currentCP.setP2(points[left+1]);
-        currentCP.display(cout);
+        // currentCP.display(cout);
         currentCP.setColor(c3);
         currentCP.draw(g);
         g.update();
-        g.Sleep(1000);
+        g.Sleep(speed*5);
+
+        //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+        if(g.kbhit()){
+            g.getKey();
+        }
 
         currentCP.setColor(white);
         currentCP.draw(g);
@@ -353,17 +359,26 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
 
     pair<point,point> result;
 
-    result = divideAndConquerClosestPair_recurse(points,left,left+size/2+1, g);
+    result = divideAndConquerClosestPair_recurse(points,left,left+size/2+1, g, speed);
     double minLeft = distanceTo(result.first,result.second);
     double min_d = minLeft;
+    //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+    if(g.kbhit()){
+        g.getKey();
+    }
+
 
     if(right-(left+size/2+1) > 1){
-        pair<point,point> rightone = divideAndConquerClosestPair_recurse(points,left+size/2+1,right, g);
+        pair<point,point> rightone = divideAndConquerClosestPair_recurse(points,left+size/2+1,right, g, speed);
         double minRight= distanceTo(rightone.first,rightone.second);
 
         if(minRight < min_d){
             min_d = minRight;
             result = rightone;
+        }
+        //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+        if(g.kbhit()){
+            g.getKey();
         }
     }
 
@@ -381,7 +396,12 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     todraw.setColor(c2);
     todraw.draw(g);
     g.update();
-    g.Sleep(500);
+    g.Sleep(speed*2);
+
+    //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+    if(g.kbhit()){
+        g.getKey();
+    }
 
     todraw.setColor(white);
     todraw.draw(g);
@@ -424,7 +444,12 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     dplus.draw(g);
 
     g.update();
-    g.Sleep(500);
+    g.Sleep(speed*2);
+
+    //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+    if(g.kbhit()){
+        g.getKey();
+    }
 
     if(closer_to_line.size() < 2){
         dplus.setColor(white);
@@ -435,8 +460,27 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
         todraw.draw(g);
         drawThickerPoints(points, g, 5);
         g.update();
+
+        //draw the thingy
+        currentCP.setP1(result.first);
+        currentCP.setP2(result.second);
+        // currentCP.display(cout);
+        currentCP.setColor(c3);
+        currentCP.draw(g);
+        g.update();
+        g.Sleep(speed*5);
+
+        //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+        if(g.kbhit()){
+            g.getKey();
+        }
+
+        currentCP.setColor(white);
+        currentCP.draw(g);
+        g.update();
         return result;
     }
+
     //sort by y:
     sort(closer_to_line.begin(),closer_to_line.end(),sort_by_y);
     double min_middle = distanceTo(closer_to_line[1],closer_to_line[0]);
@@ -465,15 +509,33 @@ pair<point,point> divideAndConquerClosestPair_recurse(vector<point> points, int 
     drawThickerPoints(points, g, 5);
     g.update();
 
+    //draw the current closest pair
+    currentCP.setP1(result.first);
+    currentCP.setP2(result.second);
+    // currentCP.display(cout);
+    currentCP.setColor(c3);
+    currentCP.draw(g);
+    g.update();
+    g.Sleep(speed*5);
+
+    //update the plotter messages from the OS so windows doesn't hang the program and say it's not responding
+    if(g.kbhit()){
+        g.getKey();
+    }
+
+    currentCP.setColor(white);
+    currentCP.draw(g);
+    g.update();
+
     return result;
  }
 
 /**
- * Solves the Closest Pair problem with the Divide and Conquer strategy.
+ * Solves the Closest Pair problem with the Divide and Conquer strategy (with animation).
  * @param g      The SDL_Plotter object to draw to.
  * @param points The points to solve.
  */
-pair<point, point> divideAndConquerClosestPair(SDL_Plotter& g,vector<point> points){
+pair<point, point> divideAndConquerClosestPair(SDL_Plotter& g,vector<point> points, int speed = 100){
     pair<point, point> closestPair;
     line todraw;
     cout << "Running divide and conquer closest pair" << endl;
@@ -481,8 +543,8 @@ pair<point, point> divideAndConquerClosestPair(SDL_Plotter& g,vector<point> poin
     //     p.display(cout);
     //     cout << endl;
     // }
-
-    closestPair = divideAndConquerClosestPair_recurse(points,0,points.size(), g);
+    sort(points.begin(), points.end());
+    closestPair = divideAndConquerClosestPair_recurse(points,0,points.size(), g, speed);
 
     //draw closest pair
     closestPair.first.setColor(color_rgb(255, 0, 0));
@@ -757,7 +819,7 @@ vector<point> convexHullRecurse(const vector<point>& allPoints, vector<point> po
             return points;
         }
 
-        return brute_forceConvexHull(points, g, 0);
+        return brute_forceConvexHull(points, g, speed);
     } else {
         vector<point> left, right;
 
@@ -789,7 +851,7 @@ vector<point> convexHullRecurse(const vector<point>& allPoints, vector<point> po
         drawHull(temp, g, color_rgb(0,0,255));
         g.update();
         // g.Sleep(1000);
-        if(temp.size() >= 200){
+        if(points.size() >= 20){
             g.Sleep(speed*10);
         }
         return temp;
@@ -804,7 +866,7 @@ vector<point> convexHullRecurse(const vector<point>& allPoints, vector<point> po
  * @param  points the set of points to solve the problem for.
  * @return        the convex hull surrounding all the points
  */
-vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g){
+vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g, int speed = 100){
     cout << "Runing divide and conquer convex hull" << endl;
     vector<point> convexHull, original(points);
     sort(points.begin(), points.end());
@@ -839,7 +901,7 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g){
     // cout << "Drawing points" << endl;
     drawThickerPoints(original, g);
 
-    convexHull = convexHullRecurse(original, points, g);
+    convexHull = convexHullRecurse(original, points, g, speed);
     drawThickerPoints(original, g);
     drawHull(convexHull, g, color_rgb(0, 0, 255));
 
@@ -859,25 +921,27 @@ vector<point> divideAndConquerConvexHull(vector<point> points, SDL_Plotter& g){
 // }
 
 int main(int argc, char** argv){
-    cout << "Hello amazin world" << endl;
-    //define variables
-    SDL_Plotter g(ROW_MAX,COL_MAX);
+    if(argc == 4){
+        //define variables
+        SDL_Plotter g(ROW_MAX,COL_MAX);
 
-    vector<point> points;
-    ifstream in("inputThicc.in");
-    int x, y;
+        vector<point> points;
+        ifstream in(argv[3]);
+        if(!in.good()){
+            cout << "Invalid third option: valid file name expected" << endl;
+            return 1;
+        }
+        int x, y;
 
-    //import data (multiple data sets?)
-    while(in >> x >> y){
-        points.push_back(point(x, y));
-        //TODO::     //sic em green
-            // R = 29;
-            // G = 60;
-            // B = 52;
-    }
+        //import data (multiple data sets?)
+        while(in >> x >> y){
+            points.push_back(point(x, y));
+            //TODO::     //sic em green
+                // R = 29;
+                // G = 60;
+                // B = 52;
+        }
 
-    //run brute force with animation and time for fun
-    if(argc == 3){
         string algo(argv[1]);
         string option(argv[2]);
 
@@ -886,13 +950,13 @@ int main(int argc, char** argv){
             return 1;
         }
         if(option != "-divide" && option != "-brute"){
-            cout << "Invalid first argument: [-brute -divide] expected" << endl;
+            cout << "Invalid second argument: [-brute -divide] expected" << endl;
             return 1;
         }
 
         bool rerunAlgorithm = true, update = true;
         bool colored = false;
-        int x,y, xd, yd;
+        int xd, yd;
         int R,G,B;
 
         while (!g.getQuit()) {
@@ -900,24 +964,18 @@ int main(int argc, char** argv){
                 if(algo == "-convex"){
                     if(option == "-brute"){
                         //call brute force convex hull, it does all the work
-                        drawThickerPoints(points, g);
-                        brute_forceConvexHull(points, g);
+                        // drawThickerPoints(points, g);
+                        brute_forceConvexHull(points, g, 100);
                         // drawHull(brute_forceConvexHull(points, g), g);
                     } else if(option == "-divide"){
-                        divideAndConquerConvexHull(points, g);
+                        divideAndConquerConvexHull(points, g, 100);
                     }
                 } else if(algo == "-closest"){
                     if(option == "-brute"){
-                        pair<point, point> closestPair = brute_forceClosestPair(points,g);
-
-                        //TODO:: circle them on the plot
-
+                        pair<point, point> closestPair = brute_forceClosestPair(points,g, 100);
                     } else if(option == "-divide"){
                         drawThickerPoints(points, g);
-                        pair<point, point> closestPair = divideAndConquerClosestPair(g,points);
-
-                        //TODO:: circle them on the plot
-
+                        pair<point, point> closestPair = divideAndConquerClosestPair(g,points, 150);
                     }
                 }
 
@@ -939,7 +997,7 @@ int main(int argc, char** argv){
     		}
         }
     } else {
-        cout << "ERROR: Number of arguments must be 2: [-convex, -closest] [-brute -divide]" << endl;
+        cout << "ERROR: Number of arguments must be 2: [-convex, -closest] [-brute -divide] [filename]" << endl;
         return 1;
     }
 

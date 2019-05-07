@@ -7,7 +7,7 @@ There are these options:: [-convex -closest] and [-divide -brute]
     - Brute = Brute Force
 
 Ex (command line of course):
-    g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide
+    g++ *.cpp  -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer && a.exe -convex -divide input2.in
 
 
 
